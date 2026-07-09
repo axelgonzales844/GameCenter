@@ -1,0 +1,137 @@
+/* --- Variables de Color (Paleta Game Center) --- */
+:root {
+    --crema-bloque: #1e1e24;       /* Fondo del header / bloques */
+    --fondo-oscuro: #121214;       /* Fondo general de la app */
+    --teal-medio: #00b4d8;          /* Color acento / azul-cyan */
+    --texto-principal: #ffffff;    /* Texto blanco */
+    --texto-secundario: #a0aec0;   /* Texto grisáceo para labels y placeholders */
+    --borde-input: #33333b;        /* Bordes de los campos */
+}
+
+/* --- Estilos Generales --- */
+body {
+    background-color: var(--fondo-oscuro);
+    color: var(--texto-principal);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+.container-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 20px;
+}
+
+.window-canvas {
+    background-color: #16161a;
+    border-radius: 8px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    width: 100%;
+    max-width: 950px;
+    overflow: hidden;
+}
+
+/* --- Header / Nav --- */
+.header-nav {
+    padding: 20px 40px;
+}
+
+.brand-logo {
+    font-size: 18px;
+    font-weight: 800;
+    letter-spacing: 1px;
+}
+
+/* --- Contenedor del Dashboard --- */
+.dashboard-container {
+    padding: 40px;
+}
+
+/* --- Campos del Formulario --- */
+.group-field {
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.field-label {
+    color: var(--texto-secundario);
+    font-size: 13px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.field-control {
+    background-color: #1e1e24;
+    color: var(--texto-principal);
+    border: 1px solid var(--borde-input);
+    border-radius: 6px;
+    padding: 12px 15px;
+    font-size: 14px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.field-control:focus {
+    border-color: var(--teal-medio);
+    box-shadow: 0 0 0 2px rgba(0, 180, 216, 0.2);
+}
+
+.field-control::placeholder {
+    color: #555562;
+}
+
+/* Estilo específico para corregir el select nativo en modo oscuro */
+select.field-control {
+    cursor: pointer;
+    appearance: none; /* Remueve la flecha por defecto para estilizar */
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2300b4d8' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    padding-right: 40px;
+}
+
+select.field-control option {
+    background-color: #1e1e24;
+    color: var(--texto-principal);
+}
+
+/* --- Botones de Acción --- */
+.action-button {
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: 700;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.action-button:active {
+    transform: scale(0.98);
+}
+
+.btn-action-primary {
+    background-color: var(--teal-medio);
+    color: #000000;
+}
+
+.btn-action-primary:hover {
+    background-color: #0096b4;
+}
+
+.btn-action-secondary {
+    background-color: transparent;
+    color: var(--texto-secundario);
+    border: 1px solid var(--borde-input);
+}
+
+.btn-action-secondary:hover {
+    background-color: #222227;
+    color: var(--texto-principal);
+}
