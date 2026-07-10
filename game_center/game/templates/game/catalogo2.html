@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo 2 - Game Center</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'game/css/style.css' %}">
+</head>
+<body>
+    <div class="catalog2-wrapper">
+        <!-- Header -->
+        <div class="catalog2-header">
+            <div class="catalog2-header-top">
+                <div class="catalog2-title">
+                    GAME<span>CENTER</span>
+                </div>
+                <nav class="catalog2-nav">
+                    <a href="{% url 'altaproducto' %}" class="nav-link">Subir Producto</a>
+                    <a href="{% url 'catalogo2' %}" class="nav-link active">Catálogo</a>
+                    <a href="{% url 'opiniones' %}" class="nav-link">Opiniones</a>
+                </nav>
+            </div>
+
+            <!-- Filtros -->
+            <div class="catalog2-filters">
+                <span class="filter-label">Filtrar por:</span>
+                <a href="{% url 'catalogo2' %}" class="filter-btn {% if not clasificacion_actual %}active{% endif %}">
+                    Todo el Stock
+                </a>
+                {% for code, label in clasificaciones %}
+                    <a href="?clasificacion={{ code }}" class="filter-btn {% if clasificacion_actual == code %}active{% endif %}">
+                        {{ label }}
+                    </a>
+                {% endfor %}
+            </div>
+
+            <!-- Estadísticas -->
+            <div class="catalog-stats">
+                <div class="stat-card">
+                    <div class="stat-value">{{ productos|length }}</div>
+                    <div class="stat-label">Productos</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="totalStock">0</div>
+                    <div class="stat-label">Stock Total</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="valorInventario">$0</div>
+                    <div class="stat-label">Valor Inventario</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla de Productos -->
+        <div class="table-container">
+            {% if productos %}
+                <div class="products-grid">
+                    {% for producto in productos %}
+                        <div class="product-card">
+                            <div class="card-image">
+                                [ {{ producto.get_clasificacion_display|truncatewords:2 }} ]
+                            </div>
+                            
+                            <div class="card-body">
+                                <h3 class="product-name">{{ producto.nombre }}</h3>
+                                
+                                <div class="product-price">
+                                    ${{ producto.costo_comercial }}
+                                </div>
+                                
+                                <div class="product-stock">
+                                    {% if producto.existencia_inicial == 0 %}
+                                        <span class="stock-label empty">Stock Vacío</span>
+                                    {% elif producto.existencia_inicial < 5 %}
+                                        <span class="stock-label critical">Stock Crítico: {{ producto.existencia_inicial }} pzas</span>
+                                    {% else %}
+                                        <span class="stock-label normal">Existencia: {{ producto.existencia_inicial }} pzas</span>
+                                    {% endif %}
+                                </div>
+                                
+                                <button class="view-details-btn" 
+                                        data-producto-id="{{ producto.id }}"
+                                        data-nombre="{{ producto.nombre }}"
+                                        data-precio="{{ producto.costo_comercial }}"
+                                        data-stock="{{ producto.existencia_inicial }}"
+                                        data-clasificacion="{{ producto.get_clasificacion_display }}"
+                                        data-especificaciones="{{ producto.especificaciones_tecnicas }}"
+                                        onclick="abrirDetalles(this)">
+                                    Ficha Técnica
+                                </button>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="empty-message">
+                    <p>No hay productos disponibles en esta categoría</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Modal de Detalles -->
+    <div id="detallesModal" class="modal2">
+        <div class="modal2-content">
+            <span class="modal2-close" onclick="cerrarModal()">&times;</span>
+            <h2 id="modalProductName"></h2>
+            
+            <div class="spec-group">
+                <strong>Precio Comercial:</strong>
+                <span id="modalPrecio"></span>
+            </div>
+
+            <div class="spec-group">
+                <strong>Clasificación:</strong>
+                <span id="modalClasificacion"></span>
+            </div>
+
+            <div class="spec-group">
+                <strong>Stock Disponible:</strong>
+                <span id="modalStock"></span>
+            </div>
+
+            <div class="spec-group">
+                <strong>Especificaciones Técnicas:</strong>
+                <span id="modalEspecificaciones"></span>
+            </div>
+        </div>
+    </div>
+
+    
+</body>
+</html>

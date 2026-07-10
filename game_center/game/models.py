@@ -26,3 +26,30 @@ class Producto(models.Model):
 
     def __str__(self):
         return f"{self.nombre} ({self.get_clasificacion_display()})"
+
+
+
+
+
+class Opinión(models.Model):
+    STATUS_CHOICES = [
+        ('PENDIENTE', 'Pendiente'),
+        ('APROBADO', 'Aprobado'),
+        ('RECHAZADO', 'Rechazado'),
+    ]
+
+    user = models.CharField(max_length=150, verbose_name="Usuario")
+    message = models.TextField(verbose_name="Mensaje")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDIENTE')
+    response = models.TextField(blank=True, null=True, verbose_name="Respuesta")
+    is_hidden = models.BooleanField(default=False)
+    created = models.DateTimeField(auto_now_add=True)
+    updated = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created']
+        verbose_name = 'Opinión'
+        verbose_name_plural = 'Opiniones'
+
+    def __str__(self):
+        return f"{self.user}: {self.message[:40]}"
