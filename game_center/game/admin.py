@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producto  # Corregido a singular
+from .models import Producto, Opinión
 
 class ProductoModelo(admin.ModelAdmin):
     # Campos que se mostrarán en las columnas del panel de administración
@@ -11,5 +11,25 @@ class ProductoModelo(admin.ModelAdmin):
     # Buscador por nombre o especificaciones
     search_fields = ('nombre', 'especificaciones_tecnicas')
 
-# Registramos el modelo con su configuración corregida
+class OpiniónAdmin(admin.ModelAdmin):
+    list_display = ('user', 'status', 'created', 'is_hidden')
+    list_filter = ('status', 'created', 'is_hidden')
+    search_fields = ('user', 'message')
+    readonly_fields = ('created', 'updated')
+    
+    fieldsets = (
+        ('Información', {
+            'fields': ('user', 'message')
+        }),
+        ('Moderación', {
+            'fields': ('status', 'is_hidden')
+        }),
+        ('Timestamps', {
+            'fields': ('created', 'updated'),
+            'classes': ('collapse',)
+        }),
+    )
+
+# Registramos el modelo con su configuración
 admin.site.register(Producto, ProductoModelo)
+admin.site.register(Opinión, OpiniónAdmin)
