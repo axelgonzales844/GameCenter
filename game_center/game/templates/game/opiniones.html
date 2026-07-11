@@ -1,117 +1,118 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Opiniones - Game Center{% endblock %}
 {% load static %}
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Opiniones - Game Center</title>
-    <link rel="stylesheet" href="{% static 'game/css/opiniones.css' %}">
-</head>
-<body>
-    <div class="opinions-wrapper">
-        <!-- Header -->
-        <div class="opinions-header-section">
-            <div class="opinions-header-top">
-                <div class="opinions-title">
-                    GAME<span>CENTER</span>
-                </div>
-                <nav class="opinions-nav">
-                    <a href="{% url 'catalogo2' %}" class="nav-link">Catálogo</a>
-                    <a href="{% url 'opiniones' %}" class="nav-link active">Opiniones</a>
-                </nav>
+
+<!-- Activamos la pestaña del menú para esta página -->
+{% block active_opiniones %}active{% endblock %}
+
+{% block contenido %}
+<div class="opinions-main-container" style="display: flex; flex-direction: column; gap: 30px; width: 100%; padding: 20px 0;">
+
+    <!-- 1. TÍTULO DE LA SECCIÓN -->
+    <div class="opinions-section-title" style="text-align: center; margin-bottom: 10px;">
+        <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 5px;">Opiniones de la Comunidad</h2>
+        <p class="subtitle" style="color: #888; margin: 0;">Comparte tus opiniones, consultas y feedback sobre nuestros productos</p>
+    </div>
+
+    <!-- 2. ALERTAS Y MENSAJES DE DJANGO -->
+    {% if messages %}
+    <div class="messages-alerts" style="display: flex; flex-direction: column; gap: 10px; width: 100%;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <!-- 3. FORMULARIO PARA DEJAR OPINIÓN -->
+    <div class="opinion-form-card">
+        <h3 class="form-title">Comparte tu Opinión</h3>
+        <!-- Asegúrate de mapear "name" con lo que reciba tu views.py -->
+        <form method="POST" class="opinion-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="usuario" class="form-label">Tu nombre o usuario</label>
+                <input 
+                    type="text" 
+                    name="usuario" 
+                    id="usuario"
+                    placeholder="Ej: @Elite_Gamer" 
+                    required 
+                    maxlength="150" 
+                    class="form-input"
+                >
             </div>
+
+            <div class="form-group">
+                <label for="opinion" class="form-label">Tu Opinión</label>
+                <textarea 
+                    name="opinion" 
+                    id="opinion"
+                    placeholder="Comparte tu opinión, consulta o feedback..." 
+                    required 
+                    rows="5" 
+                    class="form-textarea"
+                ></textarea>
+            </div>
+
+            <button type="submit" class="form-submit-btn">
+                <span class="btn-icon">✓</span>
+                Enviar Opinión
+            </button>
+        </form>
+    </div>
+
+    <!-- 4. LISTADO DE OPINIONES COMPARTIDAS -->
+    <div class="opinions-content" style="margin-top: 10px;">
+        <div class="opinions-header-title" style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+            <h3 style="font-size: 22px; font-weight: 700; margin: 0;">Opiniones Compartidas</h3>
+            <span class="count-badge">{{ opiniones|length }}</span>
         </div>
 
-        <!-- Main Content -->
-        <div class="opinions-container">
-            <!-- Section Title -->
-            <div class="opinions-section-title">
-                <h2>Opiniones de la Comunidad</h2>
-                <p class="subtitle">Comparte tus opiniones, consultas y feedback sobre nuestros productos</p>
-            </div>
+        {% if opiniones %}
+            <div class="opinions-display-grid">
+                {% for opinion in opiniones %}
+                <div class="opinion-display-card">
+                    <!-- Cabecera de la tarjeta: Usuario y Fecha -->
+                    <div class="opinion-display-header">
+                        <span class="opinion-display-username">@{{ opinion.user }}</span>
+                        <span class="opinion-display-date">{{ opinion.created|date:"d \d\e M, Y" }}</span>
+                    </div>
+                    
+                    <!-- Cuerpo: Mensaje original del usuario -->
+                    <div class="opinion-display-body">
+                        <p class="opinion-display-text">"{{ opinion.message }}"</p>
+                    </div>
 
-            <!-- Messages -->
-            {% if messages %}
-            <div class="messages-alerts">
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">
-                    {{ message }}
+                    <!-- NUEVO: Si el Administrador respondió a la opinión -->
+                    {% if opinion.response %}
+                    <div class="admin-response-box" style="margin-top: 15px; padding: 12px; background-color: rgba(255,255,255,0.05); border-left: 3px solid #ff4757; border-radius: 4px;">
+                        <strong style="display: block; font-size: 12px; color: #ff4757; margin-bottom: 4px;">Respuesta de Game Center:</strong>
+                        <p style="margin: 0; font-size: 13px; font-style: italic; color: #ddd;">{{ opinion.response }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Footer: Muestra el estado actual (en este caso Aprobado) -->
+                    <div class="opinion-display-footer" style="margin-top: 15px;">
+                        <span class="opinion-display-status">
+                            <span class="status-icon">✓</span>
+                            {{ opinion.get_status_display }}
+                        </span>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
-            {% endif %}
-
-            <!-- Opinion Form -->
-            <div class="opinion-form-card">
-                <h3 class="form-title">Comparte tu Opinión</h3>
-                <form method="POST" class="opinion-form">
-                    {% csrf_token %}
-                    <div class="form-group">
-                        <label for="usuario" class="form-label">Tu nombre o usuario</label>
-                        <input 
-                            type="text" 
-                            name="usuario" 
-                            id="usuario"
-                            placeholder="Ej: @Elite_Gamer" 
-                            required 
-                            maxlength="150" 
-                            class="form-input"
-                        >
-                    </div>
-                    <div class="form-group">
-                        <label for="opinion" class="form-label">Tu Opinión</label>
-                        <textarea 
-                            name="opinion" 
-                            id="opinion"
-                            placeholder="Comparte tu opinión, consulta o feedback..." 
-                            required 
-                            rows="5" 
-                            class="form-textarea"
-                        ></textarea>
-                    </div>
-                    <button type="submit" class="form-submit-btn">
-                        <span class="btn-icon">✓</span>
-                        Enviar Opinión
-                    </button>
-                </form>
+        {% else %}
+            <!-- Estado vacío cuando no existen registros aprobados -->
+            <div class="empty-state">
+                <div class="empty-icon">💬</div>
+                <h4>No hay opiniones aún</h4>
+                <p>¡Sé el primero en compartir tu opinión!</p>
             </div>
-
-            <!-- Opinions Grid -->
-            <div class="opinions-content">
-                <div class="opinions-header-title">
-                    <h3>Opiniones Compartidas</h3>
-                    <span class="count-badge">{{ opiniones|length }}</span>
-                </div>
-
-                {% if opiniones %}
-                    <div class="opinions-display-grid">
-                        {% for opinion in opiniones %}
-                        <div class="opinion-display-card">
-                            <div class="opinion-display-header">
-                                <span class="opinion-display-username">@{{ opinion.user }}</span>
-                                <span class="opinion-display-date">{{ opinion.created|date:"d \d\e M, Y" }}</span>
-                            </div>
-                            <div class="opinion-display-body">
-                                <p class="opinion-display-text">"{{ opinion.message }}"</p>
-                            </div>
-                            <div class="opinion-display-footer">
-                                <span class="opinion-display-status">
-                                    <span class="status-icon">✓</span>
-                                    Aprobado
-                                </span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    <div class="empty-state">
-                        <div class="empty-icon">💬</div>
-                        <h4>No hay opiniones aún</h4>
-                        <p>¡Sé el primero en compartir tu opinión!</p>
-                    </div>
-                {% endif %}
-            </div>
-        </div>
+        {% endif %}
     </div>
-</body>
-</html>
+
+</div>
+{% endblock %}

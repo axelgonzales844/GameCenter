@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Game Center{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'game/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'game/css/moderacion_opiniones.css' %}">
+    <link rel="stylesheet" href="{% static 'game/css/opiniones.css' %}">
+
+    <script src="{% static 'game/js/script.js' %}"></script>
+</head>
+<body>
+    <div class="catalog2-wrapper">
+        <!-- Header -->
+        <div class="catalog2-header">
+            <div class="catalog2-header-top">
+                <div class="catalog2-title">
+                    GAME<span>CENTER</span>
+                </div>
+                <nav class="catalog2-nav">
+                    <!-- Creamos bloques personalizados para las clases activas -->
+                    <a href="{% url 'altaproducto' %}" class="nav-link {% block active_alta %}{% endblock %}">Subir Producto</a>
+                    <a href="{% url 'catalogo' %}" class="nav-link {% block active_catalogo %}{% endblock %}">Catálogo</a>
+                    <a href="{% url 'opiniones' %}" class="nav-link {% block active_opiniones %}{% endblock %}">Opiniones</a>
+                </nav>
+            </div> <!-- CORREGIDO: Faltaba cerrar el header-top -->
+        </div> <!-- CORREGIDO: Faltaba cerrar el catalog2-header -->
+
+        {% block contenido %}
+        {% endblock %}
+        
+    </div> <!-- CORREGIDO: Cierre del catalog2-wrapper para envolver el contenido -->
+</body>
+</html>

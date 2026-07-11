@@ -1,0 +1,24 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Login - Game Center{% endblock %}
+{% load static %}
+
+{% block contenido %}
+<div class="split-side-form">
+                    <div class="split-title">Acceder al Control</div>
+                    <div class="split-subtitle">Identifícate para sincronizar tu inventario global de componentes.</div>
+                    <form onsubmit="event.preventDefault();">
+                        <div class="group-field">
+                            <label class="field-label">Identificador de Miembro</label>
+                            <input type="text" class="field-control" placeholder="ej. ghost_rider_88">
+                        </div>
+                        <div class="group-field" style="margin-bottom: 25px;">
+                            <label class="field-label">Clave de Acceso</label>
+                            <input type="password" class="field-control" placeholder="••••••••••••">
+                        </div>
+                        <button class="action-button btn-action-primary">Iniciar Sesión</button>
+                    </form>
+                    <div style="text-align: center; margin-top: 25px; font-size: 13px;">
+                        <a href="#" style="color: var(--teal-medio); font-weight: 700; text-decoration: none; letter-spacing: 0.5px;">SOLICITAR ACCESO MASTER</a>
+                    </div>
+                </div>
+{% endblock %}

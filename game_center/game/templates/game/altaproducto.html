@@ -1,18 +1,8 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Game Center - Alta de Producto</title>
-    {% load static %}
-    <link rel="stylesheet" href="{% static 'game/css/style.css' %}">
-</head>
-<body>
-    <div class="container-wrapper">
-        <div class="window-canvas">
-            <div class="header-nav header-nav-bordered">
-                <div class="brand-logo">GAME CENTER <span style="font-weight: 300; color: var(--teal-medio);">| SUITE</span></div>
-            </div>
+{% extends "game/encabezado.html" %}
+{%block title%}Alta de Producto - Game Center{% endblock %}
+{% load static %}
+{% block active_alta %}active{% endblock %}
+{% block contenido %}
             <div class="dashboard-container">
                 <div class="title-section">Modificar o dar de Alta Producto</div>
                 
@@ -26,7 +16,8 @@
                 </div>
                 {% endif %}
                 
-                <form method="POST" class="form-grid">
+                <!-- CORREGIDO: Se añadió enctype="multipart/form-data" -->
+                <form method="POST" class="form-grid" enctype="multipart/form-data">
                     {% csrf_token %}
                     <div>
                         <div class="group-field">
@@ -55,6 +46,11 @@
                             <label class="field-label">Existencia Inicial Almacén</label>
                             <input type="number" name="existencia_inicial" class="field-control" placeholder="5" required>
                         </div>
+                        <div class="group-field">
+                            <label class="field-label">Imagen del Componente</label>
+                            <!-- CORREGIDO: Se añadió name="imagen" -->
+                            <input type="file" name="imagen" class="field-control" accept="image/*" style="padding: 8px 15px;">
+                        </div>
                     </div>
                     
                     <div class="form-buttons">
@@ -63,9 +59,4 @@
                     </div>
                 </form>
             </div>
-        </div>
-    </div> 
-</body>
-</html>
-
-
+{% endblock %}

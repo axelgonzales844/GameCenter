@@ -1,0 +1,131 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Catálogo - Game Center{% endblock %}
+{% load static %}
+
+<!-- Activamos la pestaña del menú para esta página -->
+{% block active_catalogo %}active{% endblock %}
+
+
+{% block contenido %}
+<div class="catalog-main-container" style="display: flex; flex-direction: column; gap: 30px; width: 100%; padding: 20px 0;">
+
+    <!-- 1. FILA DE FILTROS -->
+    <div class="catalog2-filters" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; width: 100%;">
+        <span class="filter-label">Filtrar por:</span>
+        <a href="{% url 'catalogo' %}" class="filter-btn {% if not clasificacion_actual %}active{% endif %}">
+            Todo el Stock
+        </a>
+        {% for code, label in clasificaciones %}
+            <a href="?clasificacion={{ code }}" class="filter-btn {% if clasificacion_actual == code %}active{% endif %}">
+                {{ label }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- 2. FILA DE ESTADÍSTICAS (Ya no se encimará jamás porque está separada en el flujo flex) -->
+    <div class="catalog-stats" style="display: flex; gap: 20px; width: 100%; justify-content: space-between;">
+        <div class="stat-card" style="flex: 1;">
+            <div class="stat-value">{{ productos|length }}</div>
+            <div class="stat-label">Productos</div>
+        </div>
+        <div class="stat-card" style="flex: 1;">
+            <div class="stat-value" id="totalStock">0</div>
+            <div class="stat-label">Stock Total</div>
+        </div>
+        <div class="stat-card" style="flex: 1;">
+            <div class="stat-value" id="valorInventario">$0</div>
+            <div class="stat-label">Valor Inventario</div>
+        </div>
+    </div>
+
+</div> <!-- Cierre del contenedor estructural de arriba -->
+
+<!-- 3. TABLA DE PRODUCTOS (Continúa igual hacia abajo...) -->
+    <div class="table-container" style="margin-top: 20px;">
+        {% if productos %}
+            <div class="products-grid">
+                {% for producto in productos %}
+                    <div class="product-card">
+                        <div class="card-image" style="position: relative; width: 100%; height: 200px; background-color: #ffffff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                            
+                            <!-- Clasificación flotante -->
+                            <div style="position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: bold; color: #fff; background: rgba(0, 0, 0, 0.7); padding: 3px 8px; border-radius: 4px; z-index: 2;">
+                                {{ producto.get_clasificacion_display|truncatewords:2 }}
+                            </div>
+                            
+                            {% if producto.imagen %}
+                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                            {% else %}
+                                <div style="color: #666; font-size: 13px;">
+                                    Sin imagen disponible
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="card-body">
+                            <h3 class="product-name">{{ producto.nombre }}</h3>
+                            
+                            <div class="product-price">
+                                ${{ producto.costo_comercial }}
+                            </div>
+                            
+                            <div class="product-stock">
+                                {% if producto.existencia_inicial == 0 %}
+                                    <span class="stock-label empty">Stock Vacío</span>
+                                {% elif producto.existencia_inicial < 5 %}
+                                    <span class="stock-label critical">Stock Crítico: {{ producto.existencia_inicial }} pzas</span>
+                                {% else %}
+                                    <span class="stock-label normal">Existencia: {{ producto.existencia_inicial }} pzas</span>
+                                {% endif %}
+                            </div>
+                            
+                            <button class="view-details-btn" 
+                                    data-producto-id="{{ producto.id }}"
+                                    data-nombre="{{ producto.nombre }}"
+                                    data-precio="{{ producto.costo_comercial }}"
+                                    data-stock="{{ producto.existencia_inicial }}"
+                                    data-clasificacion="{{ producto.get_clasificacion_display }}"
+                                    data-especificaciones="{{ producto.especificaciones_tecnicas }}"
+                                    onclick="abrirDetalles(this)">
+                                Ficha Técnica
+                            </button>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-message">
+                <p>No hay productos disponibles en esta categoría</p>
+            </div>
+        {% endif %}
+    </div>
+
+    <!-- Modal de Detalles -->
+    <div id="detallesModal" class="modal2">
+        <div class="modal2-content">
+            <span class="modal2-close" onclick="cerrarModal()">&times;</span>
+            <h2 id="modalProductName"></h2>
+            
+            <div class="spec-group">
+                <strong>Precio Comercial:</strong>
+                <span id="modalPrecio"></span>
+            </div>
+
+            <div class="spec-group">
+                <strong>Clasificación:</strong>
+                <span id="modalClasificacion"></span>
+            </div>
+
+            <div class="spec-group">
+                <strong>Stock Disponible:</strong>
+                <span id="modalStock"></span>
+            </div>
+
+            <div class="spec-group">
+                <strong>Especificaciones Técnicas:</strong>
+                <span id="modalEspecificaciones"></span>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
