@@ -1,0 +1,62 @@
+{% extends "game/encabezado.html" %}
+{%block title%}Alta de Producto - Game Center{% endblock %}
+{% load static %}
+{% block active_alta %}active{% endblock %}
+{% block contenido %}
+            <div class="dashboard-container">
+                <div class="title-section">Modificar o dar de Alta Producto</div>
+                
+                {% if messages %}
+                <div class="messages-container">
+                    {% for message in messages %}
+                        <div class="message-item {% if 'success' in message.tags %}success{% else %}error{% endif %}">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                
+                <!-- CORREGIDO: Se añadió enctype="multipart/form-data" -->
+                <form method="POST" class="form-grid" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div>
+                        <div class="group-field">
+                            <label class="field-label">Nombre del Componente</label>
+                            <input type="text" name="nombre" class="field-control" placeholder="ej. Kit de Simulación G Master" required>
+                        </div>
+                        <div class="group-field">
+                            <label class="field-label">SKU / Clasificación</label>
+                            <select name="clasificacion" class="field-control">
+                                <option value="SIM_AVANZADA">Simulación Avanzada</option>
+                                <option value="AUDIO_INMERSIVO">Audio Inmersivo</option>
+                                <option value="MOBILIARIO_PRO">Mobiliario Pro</option>
+                            </select>
+                        </div>
+                        <div class="group-field">
+                            <label class="field-label">Costo Comercial ($ MXN)</label>
+                            <input type="number" name="costo_comercial" class="field-control" placeholder="7999.00" step="0.01" required>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="group-field">
+                            <label class="field-label">Especificaciones Técnicas</label>
+                            <textarea name="especificaciones_tecnicas" class="field-control textarea-no-resize" rows="5" placeholder="Detalles de materiales, compatibilidad..."></textarea>
+                        </div>
+                        <div class="group-field">
+                            <label class="field-label">Existencia Inicial Almacén</label>
+                            <input type="number" name="existencia_inicial" class="field-control" placeholder="5" required>
+                        </div>
+                        <div class="group-field">
+                            <label class="field-label">Imagen del Componente</label>
+                            <!-- CORREGIDO: Se añadió name="imagen" -->
+                            <input type="file" name="imagen" class="field-control" accept="image/*" style="padding: 8px 15px;">
+                        </div>
+                    </div>
+                    
+                    <div class="form-buttons">
+                        <button type="reset" class="action-button btn-action-secondary btn-reset">Descartar</button>
+                        <button type="submit" class="action-button btn-action-primary btn-submit">Guardar Cambios</button>
+                    </div>
+                </form>
+            </div>
+{% endblock %}

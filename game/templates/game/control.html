@@ -1,0 +1,38 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Control - Game Center{% endblock %}
+{% load static %}
+{% block active_control %}active{% endblock %}
+
+{% block contenido %}
+            <div class="dashboard-container">
+                <div class="dashboard-header-flex">
+                    <div class="dashboard-header-title">Ítems Activos en el Catálogo</div>
+                    <button class="action-button btn-action-primary btn-inline" style="background-color: var(--cyan-activo); color: #000000; font-weight: 800; padding: 10px 18px; border-radius: 6px; text-transform: uppercase;">
+                        + AGREGAR PRODUCTO
+                    </button>
+                </div>
+                
+                <div class="row-list-container">
+                    <div class="row-item-card">
+                        <div class="row-cell-primary">Butaca Ergonómica Titan</div>
+                        <div class="row-cell-info">GC-FUR-01</div>
+                        <div class="row-cell-info"><strong>$5,499.00</strong></div>
+                        <div class="row-cell-status"><span class="status-pill">12 Unidades</span></div>
+                        <div class="row-cell-actions">
+                            <button class="action-button btn-action-primary btn-inline">Editar</button>
+                            <button class="action-button btn-action-delete btn-inline">Remover</button>
+                        </div>
+                    </div>
+                    <div class="row-item-card" style="border-left: 4px solid var(--coral-alerta);">
+                        <div class="row-cell-primary">Mando Elite Series Phantom</div>
+                        <div class="row-cell-info">GC-CTRL-05</div>
+                        <div class="row-cell-info"><strong>$2,899.00</strong></div>
+                        <div class="row-cell-status"><span class="status-pill" style="background-color: rgba(239, 68, 68, 0.15); color: var(--coral-alerta); border: 1px solid rgba(239, 68, 68, 0.3);">2 Unidades</span></div>
+                        <div class="row-cell-actions">
+                            <button class="action-button btn-action-primary btn-inline">Editar</button>
+                            <button class="action-button btn-action-delete btn-inline">Remover</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+{%endblock%}

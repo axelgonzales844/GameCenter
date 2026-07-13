@@ -1,0 +1,43 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Detalles del producto - Game Center{% endblock %}
+{% load static %}
+
+<!-- Activamos la pestaña del menú para esta página -->
+{% block active_detalles %}active{% endblock %}
+{% block contenido %}
+    <div class="showcase-layout">
+        <div class="showcase-media">
+            {% if producto.imagen %}
+                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}">
+            {% else %}
+                <div style="font-size: 60px; color: var(--teal-medio);">[ 🎮 ]</div>
+            {% endif %}
+        </div>
+        <div class="showcase-body">
+            <span style="font-size: 11px; font-weight: 800; color: var(--teal-medio); text-transform: uppercase; letter-spacing: 1px;">
+                {{ producto.get_clasificacion_display }}
+            </span>
+
+            <h1 style="font-size: 32px; font-weight: 800; margin: 10px 0;">{{ producto.nombre }}</h1>
+
+            <div style="font-size: 24px; font-weight: 800; color: #10b981; margin-bottom: 20px;">
+                ${{ producto.costo_comercial }} MXN
+            </div>
+
+            <div style="font-size: 12px; font-weight: bold; color: #38a169; margin-bottom: 15px;">
+                EXISTENCIA: {{ producto.existencia_inicial }} PZAS
+            </div>
+
+            <p style="font-size: 14px; line-height: 1.6; color: var(--texto-secundario); margin-bottom: 30px;">
+                {{ producto.especificaciones_tecnicas }}
+            </p>
+
+            <div style="display: flex; gap: 15px;">
+                <button class="action-button btn-action-primary" style="width: auto; padding: 12px 30px;">Agregar al Carrito</button>
+                <a href="{% url 'catalogo' %}" style="text-decoration: none;">
+                    <button class="action-button btn-action-secondary" style="width: auto; padding: 12px 20px;">Volver</button>
+                </a>
+            </div>
+        </div>
+    </div>
+{% endblock %}

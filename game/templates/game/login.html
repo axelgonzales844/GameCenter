@@ -1,0 +1,42 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Login - Game Center{% endblock %}
+{% load static %}
+
+{% block contenido %}
+<div class="split-layout">
+    <div class="split-side-form">
+        <div class="split-title">Acceder al Control</div>
+        <div class="split-subtitle">Identifícate para sincronizar tu inventario global de componentes.</div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="form-message {% if message.tags %}{{ message.tags }}{% endif %}" style="margin-bottom: 15px; font-size: 13px; color: {% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="group-field">
+                <label class="field-label">Nombre de usuario</label>
+                <input type="text" name="username" class="field-control" placeholder="Escribe tu nombre de Usuario" required>
+            </div>
+            <div class="group-field" style="margin-bottom: 25px;">
+                <label class="field-label">Contraseña</label>
+                <input type="password" name="password" class="field-control" placeholder="Escribe tu constraseña" required>
+            </div>
+            <button type="submit" class="action-button btn-action-primary">Iniciar Sesión</button>
+        </form>
+
+        <div style="text-align: center; margin-top: 25px; font-size: 13px;">
+            <a href="{% url 'registro' %}" style="color: var(--teal-medio); font-weight: 700; text-decoration: none; letter-spacing: 0.5px;">¿NO TIENES CUENTA? REGÍSTRATE</a>
+        </div>
+    </div>
+    <div class="split-side-art">
+        <div class="split-art-grid"></div>
+        <div class="art-heading">GAME<br>CENTER</div>
+        <div class="art-paragraph">Ecosistema de Control y Monitoreo de Hardware "Dark Pro".</div>
+    </div>
+</div>
+{% endblock %}

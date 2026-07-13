@@ -1,0 +1,55 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Registro - Game Center{% endblock %}
+{% load static %}
+
+{% block contenido %}
+<div class="split-layout">
+    <div class="split-side-art" style="background-color: #111a24; border-left: none; border-right: 2px solid #1a243a;">
+        <div class="split-art-grid"></div>
+        <div class="art-heading" style="color: #10b981;">NUEVA<br>CUENTA</div>
+        <div class="art-paragraph" style="color: #ffffff;">Únete al sistema descentralizado de alta disponibilidad.</div>
+    </div>
+    <div class="split-side-form">
+        <div class="split-title">Registrar Operador</div>
+        <div class="split-subtitle">
+            Crea una cuenta para interactuar con los reportes comerciales.
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="form-message {% if message.tags %}{{ message.tags }}{% endif %}" style="margin-bottom: 15px; font-size: 13px; color: {% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %};">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" action="{% url 'registro' %}">
+        {% csrf_token %}
+        <div class="group-field">
+            <label class="field-label">Nombre de Usuario (Alias)</label>
+            <input type="text" name="username" class="field-control" placeholder="Nombre de Usuario (Alias)" required>
+        </div>
+
+        <div class="group-field">
+            <label class="field-label">Enlace de Correo</label>
+            <input type="email" name="email" class="field-control" placeholder="operador@gamecenter.mx" required>
+        </div>
+
+        <div class="group-field" style="margin-bottom: 25px;">
+            <label class="field-label">Contraseña de Seguridad</label>
+            <input type="password" name="password" class="field-control" placeholder="Mínimo 8 caracteres" required minlength="8">
+        </div>
+
+        <button type="submit" class="action-button btn-action-primary">
+            Registrar Miembro
+        </button>
+        </form>
+
+        <div style="text-align: center; margin-top: 25px; font-size: 13px;">
+            <a href="{% url 'login' %}" style="color: var(--teal-medio); font-weight: 700; text-decoration: none;">
+                VOLVER AL ACCESO
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

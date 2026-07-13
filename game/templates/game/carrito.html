@@ -1,0 +1,66 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Carrito - Game Center{% endblock %}
+{% load static %}
+
+{% block contenido %}
+<div class="checkout-layout">
+    <div class="checkout-main-panel">
+        <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 25px;">Artículos Seleccionados</h3>
+
+        <div class="row-list-container">
+            {% for item in carrito_items %}
+            <div class="row-item-card" style="padding: 12px 20px;">
+                <div style="width: 50px; height: 50px; background-color: #16161a; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid #2a2a2f;"></div>
+                <div class="row-cell-primary" style="flex: 1.5;">
+                    <div style="font-size: 15px;">{{ item.producto.nombre }}</div>
+                    <span style="font-size: 12px; color: var(--texto-secundario);">SKU: {{ item.producto.sku }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="action-button btn-action-secondary btn-inline" style="padding: 2px 8px;">-</button>
+                    <span style="font-weight: 700; font-size: 14px; width: 20px; text-align: center;">{{ item.cantidad }}</span>
+                    <button class="action-button btn-action-secondary btn-inline" style="padding: 2px 8px;">+</button>
+                </div>
+                <div style="font-weight: 800; color: #10b981; min-width: 100px; text-align: right;">${{ item.subtotal }}</div>
+                <button class="action-button btn-action-delete btn-inline" style="padding: 6px;">✕</button>
+            </div>
+            {% empty %}
+            <div class="empty-message">
+                <p>Tu carrito está vacío</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div style="margin-top: 25px;">
+            <a href="{% url 'catalogo' %}" style="color: var(--teal-medio); font-size: 13px; font-weight: 700; text-decoration: none;">← SEGUIR COMPRANDO</a>
+        </div>
+    </div>
+
+    <div class="checkout-side-summary">
+        <h3 style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Resumen</h3>
+
+        <div class="summary-row">
+            <span>Subtotal</span>
+            <span style="color: #fff; font-weight: 600;">${{ subtotal }}</span>
+        </div>
+        <div class="summary-row">
+            <span>Envío Global</span>
+            <span style="color: #10b981; font-weight: 600;">Gratis</span>
+        </div>
+
+        <div class="group-field" style="margin: 10px 0 0 0;">
+            <label class="field-label">Código Promocional</label>
+            <div style="display: flex; gap: 8px;">
+                <input type="text" class="field-control" placeholder="SUMMER26" style="padding: 8px 12px; font-size: 12px;">
+                <button class="action-button btn-action-secondary btn-inline" style="text-transform: uppercase; font-size: 11px;">Aplicar</button>
+            </div>
+        </div>
+
+        <div class="summary-total">
+            <div style="font-size: 11px; color: var(--texto-secundario); font-weight: 500; text-transform: uppercase;">Total Estimado</div>
+            <div>${{ total }} MXN</div>
+        </div>
+
+        <button class="action-button btn-action-primary" style="margin-top: 10px;">Proceder al Pago →</button>
+    </div>
+</div>
+{% endblock %}
