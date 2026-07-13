@@ -9,7 +9,7 @@
 {% block contenido %}
 <div class="catalog-main-container" style="display: flex; flex-direction: column; gap: 30px; width: 100%; padding: 20px 0;">
 
-    <!-- 1. FILA DE FILTROS -->
+    <!-- 1. Fila de Filtros -->
     <div class="catalog2-filters" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; width: 100%;">
         <span class="filter-label">Filtrar por:</span>
         <a href="{% url 'catalogo' %}" class="filter-btn {% if not clasificacion_actual %}active{% endif %}" >
