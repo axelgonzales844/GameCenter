@@ -56,15 +56,6 @@ class Orden(models.Model):
         return f"Orden #{self.id} - {self.nombre_completo}"
 
 
-class OrdenItem(models.Model):
-    """ Almacena los productos específicos de cada orden """
-    orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='items')
-    producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
-    cantidad = models.PositiveIntegerField(default=1)
-    precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
-
-    def __str__(self):
-        return f"{self.cantidad}x {self.producto.nombre} en Orden #{self.orden.id}"
 
 
 class Opinión(models.Model):
