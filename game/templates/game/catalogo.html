@@ -12,7 +12,7 @@
     <!-- 1. FILA DE FILTROS -->
     <div class="catalog2-filters" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; width: 100%;">
         <span class="filter-label">Filtrar por:</span>
-        <a href="{% url 'catalogo' %}" class="filter-btn {% if not clasificacion_actual %}active{% endif %}">
+        <a href="{% url 'catalogo' %}" class="filter-btn {% if not clasificacion_actual %}active{% endif %}" >
             Todo el Stock
         </a>
         {% for code, label in clasificaciones %}
@@ -24,84 +24,64 @@
 
 </div> <!-- Cierre del contenedor estructural de arriba -->
 
-<!-- 3. TABLA DE PRODUCTOS (Continúa igual hacia abajo...) -->
-    <div class="table-container" style="margin-top: 20px;">
-        {% if productos %}
-            <div class="products-grid">
-                {% for producto in productos %}
-                    <div class="product-card">
-                        <div class="card-image" style="position: relative; width: 100%; height: 200px; background-color: #ffffff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
-                            
-                            <!-- Clasificación flotante -->
-                            <div style="position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: bold; color: #fff; background: rgba(0, 0, 0, 0.7); padding: 3px 8px; border-radius: 4px; z-index: 2;">
-                                {{ producto.get_clasificacion_display|truncatewords:2 }}
-                            </div>
-                            
-                            {% if producto.imagen %}
-                                <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
-                            {% else %}
-                                <div style="color: #666; font-size: 13px;">
-                                    Sin imagen disponible
-                                </div>
-                            {% endif %}
+<!-- 3. TABLA DE PRODUCTOS -->
+<div class="table-container" style="margin-top: 20px;">
+    {% if productos %}
+        <div class="products-grid">
+            {% for producto in productos %}
+                <div class="product-card">
+                    <div class="card-image" style="position: relative; width: 100%; height: 200px; background-color: #ffffff; overflow: hidden; display: flex; align-items: center; justify-content: center;">
+                        
+                        <!-- Clasificación flotante -->
+                        <div style="position: absolute; top: 10px; left: 10px; font-size: 11px; font-weight: bold; color: #fff; background: rgba(0, 0, 0, 0.7); padding: 3px 8px; border-radius: 4px; z-index: 2;">
+                            {{ producto.get_clasificacion_display|truncatewords:2 }}
                         </div>
                         
-                        <div class="card-body">
-                            <h3 class="product-name">{{ producto.nombre }}</h3>
-                            
-                            <div class="product-price">
-                                ${{ producto.costo_comercial }}
+                        {% if producto.imagen %}
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 100%; height: 100%; object-fit: cover; display: block;">
+                        {% else %}
+                            <div style="color: #666; font-size: 13px;">
+                                Sin imagen disponible
                             </div>
-                            
-                            <div class="product-stock">
-                                {% if producto.existencia_inicial == 0 %}
-                                    <span class="stock-label empty">Stock Vacío</span>
-                                {% elif producto.existencia_inicial < 5 %}
-                                    <span class="stock-label critical">Stock Crítico: {{ producto.existencia_inicial }} pzas</span>
-                                {% else %}
-                                    <span class="stock-label normal">Existencia: {{ producto.existencia_inicial }} pzas</span>
-                                {% endif %}
-                            </div>
-                            <a href="{% url 'detallesproducto' producto.id %}" class="view-details-btn"> Ver</a>                            <br>
-                            <button class="view-details-btn" >Agregar al Carrito</button>
-                            </button>
-                        </div>
+                        {% endif %}
                     </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="empty-message">
-                <p>No hay productos disponibles en esta categoría</p>
-            </div>
-        {% endif %}
-    </div>
+                    
+                    <div class="card-body">
+                        <h3 class="product-name">{{ producto.nombre }}</h3>
+                        
+                        <div class="product-price">
+                            ${{ producto.costo_comercial }}
+                        </div>
+                        
+                        <div class="product-stock">
+                            {% if producto.existencia_inicial == 0 %}
+                                <span class="stock-label empty">Stock Vacío</span>
+                            {% elif producto.existencia_inicial < 5 %}
+                                <span class="stock-label critical">Stock Crítico: {{ producto.existencia_inicial }} pzas</span>
+                            {% else %}
+                                <span class="stock-label normal">Existencia: {{ producto.existencia_inicial }} pzas</span>
+                            {% endif %}
+                        </div>
 
-    <!-- Modal de Detalles -->
-    <div id="detallesModal" class="modal2">
-        <div class="modal2-content">
-            <span class="modal2-close" onclick="cerrarModal()">&times;</span>
-            <h2 id="modalProductName"></h2>
-            
-            <div class="spec-group">
-                <strong>Precio Comercial:</strong>
-                <span id="modalPrecio"></span>
-            </div>
+                        <!-- Botón Ver Detalles (Redirecciona mediante formulario GET) -->
+                        <form action="{% url 'detallesproducto' producto.id %}" method="get" style="display: inline;">
+                            <button type="submit" class="view-details-btn" style="width: 100%;">Ver Detalles</button>
+                        </form>                             
+                        
+                        <br>
 
-            <div class="spec-group">
-                <strong>Clasificación:</strong>
-                <span id="modalClasificacion"></span>
-            </div>
-
-            <div class="spec-group">
-                <strong>Stock Disponible:</strong>
-                <span id="modalStock"></span>
-            </div>
-
-            <div class="spec-group">
-                <strong>Especificaciones Técnicas:</strong>
-                <span id="modalEspecificaciones"></span>
-            </div>
+                        <!-- Botón Agregar al Carrito (Listo para tu lógica) -->
+                        <button class="view-details-btn">Agregar al Carrito</button>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    </div>
+    {% else %}
+        <div class="empty-message">
+            <p>No hay productos disponibles en esta categoría</p>
+        </div>
+    {% endif %}
+</div>
+
 
 {% endblock %}
