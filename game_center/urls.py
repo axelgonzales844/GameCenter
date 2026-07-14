@@ -13,6 +13,7 @@ urlpatterns = [
     path('registro/', views.registro, name='registro'),
     path('carrito/',views.carrito,name='carrito'),
     path('control/',views.control,name='control'),
+    path('detallesproducto/<int:producto_id>/', views.detallesproducto, name='detallesproducto'),
     #agregar las demas rutas
 ]
 
