@@ -3,7 +3,7 @@ from .models import Producto, Opinión, Usuario
 
 class ProductoModelo(admin.ModelAdmin):
     list_display = ('nombre', 'clasificacion', 'costo_comercial', 'existencia_inicial')
-    list_filter = ('costo_comercial', 'clasificacion')
+    list_filter = ('costo_comercial', 'clasificacion') 
     search_fields = ('nombre', 'especificaciones_tecnicas')
 
 class OpiniónAdmin(admin.ModelAdmin):
