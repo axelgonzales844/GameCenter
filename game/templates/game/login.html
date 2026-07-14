@@ -10,7 +10,7 @@
 
         {% if messages %}
             {% for message in messages %}
-                <div class="form-message {% if message.tags %}{{ message.tags }}{% endif %}" style="margin-bottom: 15px; font-size: 13px; color: {% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %};">
+                <div class="form-message {% if message.tags %}{{ message.tags }}{% endif %}" style="margin-bottom: 15px; font-size: 13px; color: {% if message.tags == 'error' %}#ef4444 {% else %}#10b981{% endif %};">
                     {{ message }}
                 </div>
             {% endfor %}
