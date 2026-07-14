@@ -1,84 +1,78 @@
 {% extends "game/encabezado.html" %}
-{% block title %}Opiniones - Game Center{% endblock %}
 {% load static %}
 
-<!-- Activamos la pestaña del menú para esta página -->
+{% block title %}Comentarios - Game Center{% endblock %}
+
 {% block active_opiniones %}active{% endblock %}
 
 {% block contenido %}
 <div class="feed-layout">
 
-    <!-- COLUMNA IZQUIERDA: Formulario-->
-    <div style="background-color: var(--crema-bloque); padding: 35px; border-radius: 8px; border: 1px solid #2a2a2f;">
-        <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 20px;">Redactar Comentario</h3>
+    <section style="background: var(--crema-bloque); padding: 35px; border-radius: 8px; border: 1px solid #2a2a2f;">
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Comparte tu opinión</h3>
+        <p style="margin-bottom: 20px; color: var(--texto-secundario);">
+            Cuéntanos tu experiencia o envíanos alguna sugerencia.
+        </p>
 
         {% if messages %}
-        <div class="messages-alerts" style="margin-bottom: 20px;">
             {% for message in messages %}
-            <div class="alert alert-{{ message.tags  }}">{{ message }}</div>
+                <div class="alert alert-{{ message.tags }}" style="margin-bottom: 10px;">
+                    {{ message }}
+                </div>
             {% endfor %}
-        </div>
         {% endif %}
 
-        <form method="POST">
+        <form method="post">
             {% csrf_token %}
-            <div class="group-field">
-                <label for="usuario" class="field-label">Usuario Técnico</label>
-                <input
-                    type="text"
-                    name="usuario"
-                    id="usuario"
-                    class="field-control"
-                    placeholder="ej. Elite_Gamer"
-                    required
-                    maxlength="150">
-            </div>
-            <div class="group-field">
-                <label for="opinion" class="field-label">Mensaje / Consulta</label>
-                <textarea
-                    name="opinion"
-                    id="opinion"
-                    class="field-control textarea-no-resize"
-                    rows="4"
-                    placeholder="Escribe tu opinión técnica aquí..."
-                    required></textarea>
-            </div>
-            <button type="submit" class="action-button btn-action-primary">Enviar Feedback</button>
-        </form>
-    </div>
 
-    <!-- COLUMNA DERECHA: Historial -->
-    <div>
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
-            <h3 style="font-size: 18px; font-weight: 800; margin: 0;">Historial de Opiniones</h3>
+            <div class="group-field">
+                <label for="usuario" class="field-label">Usuario</label>
+                <input type="text" id="usuario" name="usuario" class="field-control" placeholder="Escribe tu usuario" maxlength="150" required>
+            </div>
+
+            <div class="group-field">
+                <label for="opinion" class="field-label">Comentario</label>
+                <textarea id="opinion" name="opinion" class="field-control textarea-no-resize" rows="4" placeholder="Escribe tu comentario..." required></textarea>
+            </div>
+
+            <button type="submit" class="action-button btn-action-primary">
+                Publicar comentario
+            </button>
+        </form>
+    </section>
+
+    <section>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+            <h3 style="margin:0;">Comentarios</h3>
             <span class="count-badge">{{ opiniones|length }}</span>
         </div>
 
         {% if opiniones %}
             {% for opinion in opiniones %}
-            <div class="feed-bubble">
-                <div style="display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 8px;">
-                    <strong style="color: var(--teal-medio);">@{{ opinion.user }}</strong>
-                    <span style="color: var(--texto-secundario);">{{ opinion.created|date:"d \d\e M, Y" }}</span>
-                </div>
-                <p style="font-size: 14px; color: #ffffff; margin: 0;">{{ opinion.message }}</p>
+                <article class="feed-bubble">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:8px;">
+                        <strong style="color: var(--teal-medio);">{{ opinion.user }}</strong>
+                        <small style="color: var(--texto-secundario);">{{ opinion.created|date:"d \d\e M, Y" }}</small>
+                    </div>
 
-                {% if opinion.response %}
-                <div style="margin-top: 12px; padding: 12px; background-color: rgba(255,255,255,0.05); border-left: 3px solid #ef4444; border-radius: 4px;">
-                    <strong style="display: block; font-size: 12px; color: #ef4444; margin-bottom: 4px;">Respuesta de Game Center:</strong>
-                    <p style="margin: 0; font-size: 13px; font-style: italic; color: #ddd;">{{ opinion.response }}</p>
-                </div>
-                {% endif %}
-            </div>
+                    <p style="margin:0; color:#fff;">{{ opinion.message }}</p>
+
+                    {% if opinion.response %}
+                        <div style="margin-top:12px; padding:12px; border-left:3px solid #ef4444; background:rgba(255,255,255,.05);">
+                            <strong style="color:#ef4444;">Respuesta del administrador</strong>
+                            <p style="margin-top:5px; color:#ddd;">{{ opinion.response }}</p>
+                        </div>
+                    {% endif %}
+                </article>
             {% endfor %}
         {% else %}
             <div class="empty-state">
                 <div class="empty-icon">💬</div>
-                <h4>No hay opiniones aún</h4>
-                <p>¡Sé el primero en compartir tu opinión!</p>
+                <h4>Aún no hay comentarios</h4>
+                <p>Sé el primero en compartir tu opinión.</p>
             </div>
         {% endif %}
-    </div>
+    </section>
 
 </div>
 {% endblock %}

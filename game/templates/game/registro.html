@@ -1,56 +1,115 @@
 {% extends "game/encabezado.html" %}
-{% block title %}Registro - Game Center{% endblock %}
 {% load static %}
 
+{% block title %}Crear Cuenta{% endblock %}
+
 {% block contenido %}
-<div class="split-layout">
-    <div class="split-side-art" style="background-color: #111a24; border-left: none; border-right: 2px solid #1a243a;">
-        <div class="split-art-grid"></div>
-        <div class="art-heading" style="color: #10b981;">NUEVA<br>CUENTA</div>
-        <div class="art-paragraph" style="color: #ffffff;">Únete al sistema descentralizado de alta disponibilidad.</div>
-    </div>
-    <div class="split-side-form">
-        <div class="split-title">Registrar Operador</div>
-        <div class="split-subtitle">
-            Crea una cuenta para interactuar con los reportes comerciales.
-        </div>
+
+<section class="split-layout">
+
+    <!-- Formulario -->
+    <section class="split-side-form">
+
+        <h2 class="split-title">Crear una cuenta</h2>
+
+        <p class="split-subtitle">
+            Llena el siguiente formulario para registrarte en Game Center.
+        </p>
 
         {% if messages %}
             {% for message in messages %}
-                <div class="form-message {% if message.tags %}{{ message.tags }}{% endif %}" style="margin-bottom: 15px; font-size: 13px; color: {% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %};">
+                <div class="form-message {{ message.tags }}"
+                     style="margin-bottom:15px;
+                            color:{% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %};">
                     {{ message }}
                 </div>
             {% endfor %}
         {% endif %}
 
-        <form method="post" action="{% url 'registro' %}">
-        {% csrf_token %}
-        <div class="group-field">
-            <label class="field-label">Nombre de Usuario (Alias)</label>
-            <input type="text" name="username" class="field-control" placeholder="Nombre de Usuario (Alias)" required>
-        </div>
+        <form action="{% url 'registro' %}" method="post">
 
-        <div class="group-field">
-            <label class="field-label">Enlace de Correo</label>
-            <input type="email" name="email" class="field-control" placeholder="operador@gamecenter.mx" required>
-        </div>
+            {% csrf_token %}
 
-        <div class="group-field" style="margin-bottom: 25px;">
-            <label class="field-label">Contraseña de Seguridad</label>
-            <input type="password" name="password" class="field-control" placeholder="Mínimo 8 caracteres" required minlength="8">
-        </div>
+            <div class="group-field">
+                <label for="username" class="field-label">
+                    Usuario
+                </label>
 
-        <button type="submit" class="action-button btn-action-primary">
-            Registrar Miembro
-        </button>
+                <input
+                    id="username"
+                    class="field-control"
+                    type="text"
+                    name="username"
+                    placeholder="Nombre de usuario"
+                    required>
+            </div>
+
+            <div class="group-field">
+                <label for="email" class="field-label">
+                    Correo electrónico
+                </label>
+
+                <input
+                    id="email"
+                    class="field-control"
+                    type="email"
+                    name="email"
+                    placeholder="usuario@correo.com"
+                    required>
+            </div>
+
+            <div class="group-field">
+
+                <label for="password" class="field-label">
+                    Contraseña
+                </label>
+
+                <input
+                    id="password"
+                    class="field-control"
+                    type="password"
+                    name="password"
+                    placeholder="Mínimo 8 caracteres"
+                    minlength="8"
+                    required>
+
+            </div>
+
+            <button class="action-button btn-action-primary" type="submit">
+                Crear cuenta
+            </button>
+
         </form>
 
-        <div style="text-align: center; margin-top: 25px; font-size: 13px;">
-            <a href="{% url 'login' %}" style="color: var(--teal-medio); font-weight: 700; text-decoration: none;">
-                VOLVER AL ACCESO
+        <p style="margin-top:25px; text-align:center;">
+            ¿Ya tienes una cuenta?
+
+            <a href="{% url 'login' %}"
+               style="text-decoration:none; color:var(--teal-medio); font-weight:bold;">
+                Iniciar sesión
             </a>
-        </div>
-    </div>
-</div>
+        </p>
+
+    </section>
+
+    <!-- Información -->
+    <aside class="split-side-art"
+           style="background:#15202d; border-left:2px solid #1b2a40;">
+
+        <div class="split-art-grid"></div>
+
+        <h1 class="art-heading">
+            GAME<br>
+            CENTER
+        </h1>
+
+        <p class="art-paragraph">
+            Administra tu inventario de componentes y mantén organizada la
+            información de tu equipo desde un solo lugar.
+        </p>
+
+    </aside>
+
+</section>
+
 {% endblock %}
-{# Cambio registrado para git #}
