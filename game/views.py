@@ -6,7 +6,6 @@ from django.contrib.auth.hashers import check_password, make_password
 # Create your views here.
 
 def altaproducto(request):
-    # Procesar formulario POST para crear nuevo producto
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         clasificacion = request.POST.get('clasificacion', 'SIM_AVANZADA')
@@ -14,8 +13,6 @@ def altaproducto(request):
         especificaciones_tecnicas = request.POST.get('especificaciones_tecnicas', '').strip()
         existencia_inicial = request.POST.get('existencia_inicial', 0)
         
-        # 1. AJUSTE: Capturar el archivo de la imagen desde los archivos del request
-        # Asegúrate de que el atributo name de tu input HTML sea "imagen" (<input name="imagen" type="file">)
         imagen = request.FILES.get('imagen') 
         
         # Validar campos requeridos
@@ -23,24 +20,20 @@ def altaproducto(request):
             messages.error(request, 'Por favor completa todos los campos requeridos')
         else:
             try:
-                # 2. AJUSTE: Añadir el campo imagen al create para que Django lo guarde en la base de datos
                 Producto.objects.create(
                     nombre=nombre,
                     clasificacion=clasificacion,
                     costo_comercial=costo_comercial,
                     especificaciones_tecnicas=especificaciones_tecnicas,
                     existencia_inicial=int(existencia_inicial),
-                    imagen=imagen  # <-- Línea agregada
+                    imagen=imagen 
                 )
                 messages.success(request, f'Producto "{nombre}" creado exitosamente')
                 return redirect('catalogo')
             except Exception as e:
                 messages.error(request, f'Error al crear el producto: {str(e)}')
     
-    # Obtener clasificación seleccionada desde query parameters
     clasificacion_filter = request.GET.get('clasificacion', None)
-    
-    # Obtener todos los productos o filtrar por clasificación
     if clasificacion_filter:
         productos = Producto.objects.filter(clasificacion=clasificacion_filter)
     else:
