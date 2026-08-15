@@ -1,0 +1,39 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Administración de Usuarios - Game Center{% endblock %}
+
+{% block contenido %}
+<div style="width: 100%; padding: 20px 0;">
+    <h2 style="font-size: 28px; font-weight: 800; margin-bottom: 20px;">Gestión de Usuarios</h2>
+
+    <div class="table-container">
+        <table style="width: 100%; border-collapse: collapse; text-align: left; color: #fff;">
+            <thead>
+                <tr style="border-bottom: 2px solid #2a2a2f; color: var(--texto-secundario);">
+                    <th style="padding: 12px;">ID</th>
+                    <th style="padding: 12px;">Usuario</th>
+                    <th style="padding: 12px;">Correo</th>
+                    <th style="padding: 12px;">Rol</th>
+                    <th style="padding: 12px;">Fecha de Registro</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usuarios %}
+                <tr style="border-bottom: 1px solid #1f1f23;">
+                    <td style="padding: 12px;">#{{ u.id }}</td>
+                    <td style="padding: 12px; font-weight: bold;">@{{ u.username }}</td>
+                    <td style="padding: 12px;">{{ u.email }}</td>
+                    <td style="padding: 12px;">
+                        {% if u.is_admin %}
+                            <span style="background: #ef4444; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">ADMIN</span>
+                        {% else %}
+                            <span style="background: #7a4ff7; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px;">CLIENTE</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 12px; color: var(--texto-secundario);">{{ u.created|date:"d/m/Y H:i" }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

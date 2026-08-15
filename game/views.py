@@ -1,10 +1,41 @@
+from functools import wraps
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from .models import Producto, Opinión, Usuario
+from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Carrito, ElementoCarrito
 from django.contrib.auth.hashers import check_password, make_password
 
-# Create your views here.
 
+def admin_required(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.session.get('is_admin', False):
+            messages.error(request, 'Acceso denegado. Se requieren permisos de administrador.')
+            return redirect('login')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+def login_required_custom(view_func):
+    @wraps(view_func)
+    def _wrapped_view(request, *args, **kwargs):
+        if not request.session.get('usuario_id'):
+            messages.error(request, 'Debes iniciar sesión para acceder a esta sección.')
+            return redirect('login')
+        return view_func(request, *args, **kwargs)
+    return _wrapped_view
+
+
+def _obtener_o_crear_carrito_db(request):
+    usuario_id = request.session.get('usuario_id')
+    if usuario_id:
+        usuario = Usuario.objects.filter(id=usuario_id).first()
+        if usuario:
+            carrito_db, _ = Carrito.objects.get_or_create(usuario=usuario)
+            return carrito_db
+    return None
+
+
+@admin_required
 def altaproducto(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -12,12 +43,10 @@ def altaproducto(request):
         costo_comercial = request.POST.get('costo_comercial', 0)
         especificaciones_tecnicas = request.POST.get('especificaciones_tecnicas', '').strip()
         existencia_inicial = request.POST.get('existencia_inicial', 0)
-        
         imagen = request.FILES.get('imagen') 
         
-        # Validar campos requeridos
         if not nombre or not costo_comercial or not existencia_inicial:
-            messages.error(request, 'Por favor completa todos los campos requeridos')
+            messages.error(request, 'Por favor completa todos los campos requeridos.')
         else:
             try:
                 Producto.objects.create(
@@ -28,76 +57,338 @@ def altaproducto(request):
                     existencia_inicial=int(existencia_inicial),
                     imagen=imagen 
                 )
-                messages.success(request, f'Producto "{nombre}" creado exitosamente')
+                messages.success(request, f'Producto "{nombre}" creado exitosamente.')
                 return redirect('catalogo')
             except Exception as e:
                 messages.error(request, f'Error al crear el producto: {str(e)}')
     
     clasificacion_filter = request.GET.get('clasificacion', None)
-    if clasificacion_filter:
-        productos = Producto.objects.filter(clasificacion=clasificacion_filter)
-    else:
-        productos = Producto.objects.all()
+    productos = Producto.objects.filter(clasificacion=clasificacion_filter) if clasificacion_filter else Producto.objects.all()
     
-    # Obtener todas las clasificaciones disponibles
-    clasificaciones = Producto.CLASIFICACION_CHOICES
-    
-    context = {
+    return render(request, 'game/altaproducto.html', {
         'productos': productos,
-        'clasificaciones': clasificaciones,
+        'clasificaciones': Producto.CLASIFICACION_CHOICES,
         'clasificacion_actual': clasificacion_filter,
-    }
-    
-    return render(request, 'game/altaproducto.html', context)
+    })
 
 
 def catalogo(request):
-    # Obtener clasificación seleccionada desde query parameters
     clasificacion_filter = request.GET.get('clasificacion', None)
+    productos = Producto.objects.filter(clasificacion=clasificacion_filter) if clasificacion_filter else Producto.objects.all()
     
-    # Obtener todos los productos o filtrar por clasificación
-    if clasificacion_filter:
-        productos = Producto.objects.filter(clasificacion=clasificacion_filter)
-    else:
-        productos = Producto.objects.all()
-    
-    # Obtener todas las clasificaciones disponibles
-    clasificaciones = Producto.CLASIFICACION_CHOICES
-    
-    context = {
+    return render(request, 'game/catalogo.html', {
         'productos': productos,
-        'clasificaciones': clasificaciones,
+        'clasificaciones': Producto.CLASIFICACION_CHOICES,
         'clasificacion_actual': clasificacion_filter,
-    }
-    
-    return render(request, 'game/catalogo.html', context)
+    })
 
-
-# En tu archivo views.py haz el query así para enviarlo al HTML:
-def opiniones(request):
-    if request.method == 'POST':
-        usuario_form = request.POST.get('usuario')
-        mensaje_form = request.POST.get('opinion')
-        
-        # Guarda en la base de datos usando los campos de tu modelo
-        Opinión.objects.create(user=usuario_form, message=mensaje_form)
-        messages.success(request, '¡Tu opinión ha sido enviada! Aparecerá cuando sea aprobada.')
-        return redirect('opiniones')
-
-    # Filtra las opiniones para mostrar en el HTML
-    opiniones_aprobadas = Opinión.objects.filter(status='APROBADO', is_hidden=False)
-    
-    return render(request, 'game/opiniones.html', {'opiniones': opiniones_aprobadas})
-
-def carrito(request):
-    return render(request, 'game/carrito.html')
-
-def control(request):
-    return render(request, 'game/control.html')
 
 def detallesproducto(request, producto_id): 
     producto = get_object_or_404(Producto, pk=producto_id) 
     return render(request, 'game/detallesproducto.html', {'producto': producto})
+
+
+@admin_required
+def control(request):
+    return render(request, 'game/control.html')
+
+
+@admin_required
+def lista_usuarios(request):
+    usuarios = Usuario.objects.all().order_by('-id')
+    return render(request, 'game/usuarios.html', {'usuarios': usuarios})
+
+
+@login_required_custom
+def perfil(request):
+    usuario_id = request.session.get('usuario_id')
+    usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+    
+    direcciones = Direccion.objects.filter(usuario=usuario_obj)
+    ordenes = Orden.objects.filter(usuario=usuario_obj).order_by('-created')
+
+    return render(request, 'game/perfil.html', {
+        'usuario': usuario_obj,
+        'direcciones': direcciones,
+        'ordenes': ordenes
+    })
+
+
+@login_required_custom
+def agregar_direccion(request):
+    if request.method == 'POST':
+        usuario_id = request.session.get('usuario_id')
+        usuario = get_object_or_404(Usuario, pk=usuario_id)
+
+        calle = request.POST.get('calle', '').strip()
+        numero_exterior = request.POST.get('numero_exterior', '').strip()
+        numero_interior = request.POST.get('numero_interior', '').strip()
+        colonia = request.POST.get('colonia', '').strip()
+        codigo_postal = request.POST.get('codigo_postal', '').strip()
+        ciudad = request.POST.get('ciudad', '').strip()
+        pais = request.POST.get('pais', 'México').strip()
+        numero_telefonico = request.POST.get('numero_telefonico', '').strip()
+        referencias = request.POST.get('referencias', '').strip()
+
+        if not calle or not numero_exterior or not colonia or not codigo_postal or not ciudad or not numero_telefonico:
+            messages.error(request, 'Por favor llena todos los campos obligatorios de la dirección.')
+            return redirect('perfil')
+
+        Direccion.objects.create(
+            usuario=usuario,
+            calle=calle,
+            numero_exterior=numero_exterior,
+            numero_interior=numero_interior if numero_interior else None,
+            colonia=colonia,
+            codigo_postal=codigo_postal,
+            ciudad=ciudad,
+            pais=pais,
+            numero_telefonico=numero_telefonico,
+            referencias=referencias if referencias else None
+        )
+
+        messages.success(request, '¡Dirección agregada correctamente!')
+        return redirect('perfil')
+
+    return redirect('perfil')
+
+
+def opiniones(request):
+    if request.method == 'POST':
+        usuario_id = request.session.get('usuario_id')
+        if not usuario_id:
+            messages.error(request, 'Debes iniciar sesión para publicar una opinión.')
+            return redirect('login')
+
+        usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+        mensaje_form = request.POST.get('opinion', '').strip()
+
+        if mensaje_form:
+            Opinión.objects.create(
+                user=usuario_obj.username,  
+                message=mensaje_form
+            )
+            messages.success(request, '¡Tu opinión ha sido enviada!')
+        else:
+            messages.error(request, 'El comentario no puede estar vacío.')
+
+        return redirect('opiniones')
+
+    opiniones_aprobadas = Opinión.objects.filter(status='APROBADO', is_hidden=False)
+    return render(request, 'game/opiniones.html', {'opiniones': opiniones_aprobadas})
+
+
+def carrito(request):
+    carrito_items = []
+    subtotal = 0
+    carrito_db = _obtener_o_crear_carrito_db(request)
+
+    if carrito_db:
+        elementos = ElementoCarrito.objects.filter(carrito=carrito_db).select_related('producto')
+        for item in elementos:
+            subtotal_item = float(item.producto.costo_comercial) * item.cantidad
+            subtotal += subtotal_item
+            carrito_items.append({
+                'producto_id': item.producto.id,
+                'nombre': item.producto.nombre,
+                'precio': float(item.producto.costo_comercial),
+                'cantidad': item.cantidad,
+                'imagen': item.producto.imagen.url if item.producto.imagen else '',
+                'subtotal': subtotal_item
+            })
+    else:
+        carrito_session = request.session.get('carrito', {})
+        for prod_id, item in carrito_session.items():
+            subtotal_item = float(item['precio']) * int(item['cantidad'])
+            subtotal += subtotal_item
+            carrito_items.append({
+                'producto_id': prod_id,
+                'nombre': item['nombre'],
+                'precio': item['precio'],
+                'cantidad': item['cantidad'],
+                'imagen': item.get('imagen', ''),
+                'subtotal': subtotal_item
+            })
+
+    usuario_id = request.session.get('usuario_id')
+    usuario_obj = Usuario.objects.filter(id=usuario_id).first() if usuario_id else None
+    direcciones_usuario = Direccion.objects.filter(usuario=usuario_obj) if usuario_obj else []
+
+    return render(request, 'game/carrito.html', {
+        'carrito_items': carrito_items,
+        'subtotal': subtotal,
+        'total': subtotal,
+        'direcciones': direcciones_usuario
+    })
+
+
+def agregar_al_carrito(request, producto_id):
+    producto = get_object_or_404(Producto, pk=producto_id)
+    carrito_db = _obtener_o_crear_carrito_db(request)
+
+    if carrito_db:
+        elemento, created = ElementoCarrito.objects.get_or_create(
+            carrito=carrito_db,
+            producto=producto,
+            defaults={'cantidad': 1}
+        )
+        if not created:
+            elemento.cantidad += 1
+            elemento.save()
+    else:
+        carrito_session = request.session.get('carrito', {})
+        str_id = str(producto_id)
+        if str_id in carrito_session:
+            carrito_session[str_id]['cantidad'] += 1
+        else:
+            carrito_session[str_id] = {
+                'nombre': producto.nombre,
+                'precio': float(producto.costo_comercial),
+                'cantidad': 1,
+                'imagen': producto.imagen.url if producto.imagen else ''
+            }
+        request.session['carrito'] = carrito_session
+
+    messages.success(request, f'"{producto.nombre}" se agregó al carrito.')
+    next_url = request.META.get('HTTP_REFERER', 'catalogo')
+    return redirect(next_url)
+
+
+def cambiar_cantidad_carrito(request, producto_id, accion):
+    carrito_db = _obtener_o_crear_carrito_db(request)
+
+    if carrito_db:
+        elemento = ElementoCarrito.objects.filter(carrito=carrito_db, producto_id=producto_id).first()
+        if elemento:
+            if accion == 'sumar':
+                elemento.cantidad += 1
+                elemento.save()
+            elif accion == 'restar':
+                elemento.cantidad -= 1
+                if elemento.cantidad <= 0:
+                    elemento.delete()
+                else:
+                    elemento.save()
+            elif accion == 'eliminar':
+                elemento.delete()
+    else:
+        carrito_session = request.session.get('carrito', {})
+        str_id = str(producto_id)
+        if str_id in carrito_session:
+            if accion == 'sumar':
+                carrito_session[str_id]['cantidad'] += 1
+            elif accion == 'restar':
+                carrito_session[str_id]['cantidad'] -= 1
+                if carrito_session[str_id]['cantidad'] <= 0:
+                    del carrito_session[str_id]
+            elif accion == 'eliminar':
+                del carrito_session[str_id]
+        request.session['carrito'] = carrito_session
+
+    return redirect('carrito')
+
+
+@login_required_custom
+def procesar_pago(request):
+    if request.method == 'POST':
+        usuario_id = request.session.get('usuario_id')
+        usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+        carrito_db = _obtener_o_crear_carrito_db(request)
+
+        items_a_comprar = []
+        subtotal = 0
+
+        if carrito_db:
+            elementos = ElementoCarrito.objects.filter(carrito=carrito_db).select_related('producto')
+            for el in elementos:
+                costo = float(el.producto.costo_comercial)
+                items_a_comprar.append({
+                    'producto_obj': el.producto,
+                    'cantidad': el.cantidad,
+                    'precio': costo
+                })
+                subtotal += costo * el.cantidad
+        else:
+            carrito_session = request.session.get('carrito', {})
+            for prod_id, item in carrito_session.items():
+                p_obj = Producto.objects.filter(id=prod_id).first()
+                if p_obj:
+                    costo = float(item['precio'])
+                    cant = int(item['cantidad'])
+                    items_a_comprar.append({
+                        'producto_obj': p_obj,
+                        'cantidad': cant,
+                        'precio': costo
+                    })
+                    subtotal += costo * cant
+
+        if not items_a_comprar:
+            messages.error(request, 'Tu carrito está vacío.')
+            return redirect('carrito')
+
+        metodo_pago = request.POST.get('metodo_pago', 'TARJETA')
+        if metodo_pago == 'TARJETA':
+            num_tarjeta = request.POST.get('numero_tarjeta', '').replace(' ', '')
+            cvv = request.POST.get('cvv', '')
+            if len(num_tarjeta) != 16 or not num_tarjeta.isdigit():
+                messages.error(request, 'Error en el pago: Ingresa un número de tarjeta válido de 16 dígitos.')
+                return redirect('carrito')
+            if len(cvv) < 3 or not cvv.isdigit():
+                messages.error(request, 'Error en el pago: El código CVV es incorrecto.')
+                return redirect('carrito')
+
+        direccion_id = request.POST.get('direccion_id')
+        if direccion_id:
+            dir_obj = Direccion.objects.filter(id=direccion_id, usuario=usuario_obj).first()
+            if dir_obj:
+                direccion_postal = f"{dir_obj.calle} #{dir_obj.numero_exterior}, Col. {dir_obj.colonia}"
+                estado_ciudad = dir_obj.ciudad
+                codigo_postal = dir_obj.codigo_postal
+            else:
+                direccion_postal = "Entrega Digital / Descarga"
+                estado_ciudad = "Digital"
+                codigo_postal = "00000"
+        else:
+            direccion_postal = "Entrega Digital / Descarga"
+            estado_ciudad = "Digital"
+            codigo_postal = "00000"
+
+        nueva_orden = Orden.objects.create(
+            usuario=usuario_obj,
+            nombre_completo=usuario_obj.username,
+            direccion_postal=direccion_postal,
+            estado_ciudad=estado_ciudad,
+            codigo_postal=codigo_postal,
+            metodo_pago=metodo_pago,
+            total_neto=subtotal
+        )
+
+        for item in items_a_comprar:
+            prod = item['producto_obj']
+            cant = item['cantidad']
+            if prod.existencia_inicial >= cant:
+                prod.existencia_inicial -= cant
+            else:
+                prod.existencia_inicial = 0
+            prod.save()
+
+            OrdenItem.objects.create(
+                orden=nueva_orden,
+                producto=prod,
+                cantidad=cant,
+                precio_unitario=item['precio']
+            )
+
+        if carrito_db:
+            ElementoCarrito.objects.filter(carrito=carrito_db).delete()
+        request.session['carrito'] = {}
+        request.session.modified = True
+
+        messages.success(request, f'¡Pago aprobado con éxito! Tu Orden #{nueva_orden.id} fue registrada.')
+        return redirect('carrito')
+
+    return redirect('carrito')
+
 
 def registro(request):
     if request.method == 'POST':
@@ -132,6 +423,7 @@ def registro(request):
 
     return render(request, 'game/registro.html')
 
+
 def login_view(request):
     if request.method == 'POST':
         username = request.POST.get('username', '').strip()
@@ -148,10 +440,33 @@ def login_view(request):
             return render(request, 'game/login.html')
 
         request.session['usuario_id'] = usuario.id
+        request.session['username'] = usuario.username
         request.session['is_admin'] = usuario.is_admin
 
+        carrito_session = request.session.get('carrito', {})
+        if carrito_session:
+            carrito_db, _ = Carrito.objects.get_or_create(usuario=usuario)
+            for prod_id, item in carrito_session.items():
+                producto = Producto.objects.filter(id=prod_id).first()
+                if producto:
+                    el, created = ElementoCarrito.objects.get_or_create(
+                        carrito=carrito_db,
+                        producto=producto,
+                        defaults={'cantidad': item['cantidad']}
+                    )
+                    if not created:
+                        el.cantidad += item['cantidad']
+                        el.save()
+            request.session['carrito'] = {}
+
         if usuario.is_admin:
-            return redirect('admin_panel')
+            return redirect('control')
         return redirect('catalogo')
 
     return render(request, 'game/login.html')
+
+
+def logout_view(request):
+    request.session.flush()
+    messages.info(request, 'Has cerrado sesión exitosamente.')
+    return redirect('login')

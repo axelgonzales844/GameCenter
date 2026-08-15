@@ -33,7 +33,12 @@
             </p>
 
             <div style="display: flex; gap: 15px;">
-                <button class="action-button btn-action-primary" style="width: auto; padding: 12px 30px;">Agregar al Carrito</button>
+                <!-- En catalogo.html o detalles.html -->
+                <a href="{% url 'agregar_al_carrito' producto.id %}" style="text-decoration: none; width: 100%;">
+                    <button type="button" class="view-details-btn" style="width: 100%; background-color: #10b981; color: white;">
+                        Agregar al Carrito
+                    </button>
+                </a>
                 <a href="{% url 'catalogo' %}" style="text-decoration: none;">
                     <button class="action-button btn-action-primary" style="width: auto; padding: 12px 20px;">Volver</button>
                 </a>

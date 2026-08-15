@@ -3,40 +3,101 @@
 {% load static %}
 
 {% block contenido %}
-<div class="checkout-layout">
+<!-- FORMULARIO DIRIGIDO A PROCESAR_PAGO -->
+<form method="POST" action="{% url 'procesar_pago' %}" class="checkout-layout">
+    {% csrf_token %}
+
     <div class="checkout-main-panel">
         <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 25px;">Artículos Seleccionados</h3>
 
         <div class="row-list-container">
             {% for item in carrito_items %}
-            <div class="row-item-card" style="padding: 12px 20px;">
-                <div style="width: 50px; height: 50px; background-color: #16161a; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; border: 1px solid #2a2a2f;"></div>
+            <div class="row-item-card" style="padding: 12px 20px; display: flex; align-items: center; gap: 15px;">
+                <div style="width: 50px; height: 50px; background-color: #16161a; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #2a2a2f;">
+                    {% if item.imagen %}
+                        <img src="{{ item.imagen }}" style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                        🎮
+                    {% endif %}
+                </div>
+                
                 <div class="row-cell-primary" style="flex: 1.5;">
-                    <div style="font-size: 15px;">{{ item.producto.nombre }}</div>
-                    <span style="font-size: 12px; color: var(--texto-secundario);">SKU: {{ item.producto.sku }}</span>
+                    <div style="font-size: 15px; font-weight: bold;">{{ item.nombre }}</div>
+                    <span style="font-size: 12px; color: var(--texto-secundario);">${{ item.precio }} c/u</span>
                 </div>
+                
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <button class="action-button btn-action-secondary btn-inline" style="padding: 2px 8px;">-</button>
+                    <a href="{% url 'cambiar_cantidad_carrito' item.producto_id 'restar' %}" class="action-button btn-action-secondary btn-inline" style="padding: 2px 8px; text-decoration: none;">-</a>
                     <span style="font-weight: 700; font-size: 14px; width: 20px; text-align: center;">{{ item.cantidad }}</span>
-                    <button class="action-button btn-action-secondary btn-inline" style="padding: 2px 8px;">+</button>
+                    <a href="{% url 'cambiar_cantidad_carrito' item.producto_id 'sumar' %}" class="action-button btn-action-secondary btn-inline" style="padding: 2px 8px; text-decoration: none;">+</a>
                 </div>
+
                 <div style="font-weight: 800; color: #10b981; min-width: 100px; text-align: right;">${{ item.subtotal }}</div>
-                <button class="action-button btn-action-delete btn-inline" style="padding: 6px;">✕</button>
+                
+                <a href="{% url 'cambiar_cantidad_carrito' item.producto_id 'eliminar' %}" class="action-button btn-action-delete btn-inline" style="padding: 6px; text-decoration: none; background: #ef4444; color: white;">✕</a>
             </div>
             {% empty %}
-            <div class="empty-message">
-                <p>Tu carrito está vacío</p>
+            <div class="empty-message" style="text-align: center; padding: 40px 0;">
+                <p style="font-size: 16px; color: var(--texto-secundario);">Tu carrito está vacío</p>
             </div>
             {% endfor %}
         </div>
+
+        {% if carrito_items %}
+        <!-- PANEL DE DIRECCIÓN Y PAGO -->
+        <div style="margin-top: 30px; background: #16161a; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px;">
+            
+            <!-- Selección de Dirección -->
+            <h4 style="font-size: 16px; font-weight: bold; margin-top: 0; color: #fff;">Dirección de Envío</h4>
+            {% if direcciones %}
+                <select name="direccion_id" style="width: 100%; padding: 10px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px; margin-bottom: 20px;">
+                    {% for dir in direcciones %}
+                        <option value="{{ dir.id }}">{{ dir.calle }} #{{ dir.numero_exterior }} - Col. {{ dir.colonia }}, {{ dir.ciudad }}</option>
+                    {% endfor %}
+                </select>
+            {% else %}
+                <p style="font-size: 13px; color: #aaa; margin-bottom: 20px;">No tienes direcciones guardadas. Se procesará como entrega digital.</p>
+            {% endif %}
+
+            <!-- Campos Simulados de Tarjeta -->
+            <h4 style="font-size: 16px; font-weight: bold; color: #fff; margin-top: 15px; margin-bottom: 10px;">Procesar Pago</h4>
+            
+            <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                <label style="color: #fff; cursor: pointer; font-size: 14px;">
+                    <input type="radio" name="metodo_pago" value="TARJETA" checked onclick="document.getElementById('tarjeta-box').style.display='grid'">
+                    Tarjeta de Crédito / Débito
+                </label>
+                <label style="color: #fff; cursor: pointer; font-size: 14px;">
+                    <input type="radio" name="metodo_pago" value="PAYPAL" onclick="document.getElementById('tarjeta-box').style.display='none'">
+                    PayPal System
+                </label>
+            </div>
+
+            <div id="tarjeta-box" style="display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 10px;">
+                <div>
+                    <label style="font-size: 11px; color: #aaa; display: block;">Número de Tarjeta (16 dígitos)</label>
+                    <input type="text" name="numero_tarjeta" placeholder="1234 5678 9012 3456" maxlength="16" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #aaa; display: block;">Expiración</label>
+                    <input type="text" name="expiracion" placeholder="MM/AA" maxlength="5" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                </div>
+                <div>
+                    <label style="font-size: 11px; color: #aaa; display: block;">CVV</label>
+                    <input type="password" name="cvv" placeholder="123" maxlength="3" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                </div>
+            </div>
+        </div>
+        {% endif %}
 
         <div style="margin-top: 25px;">
             <a href="{% url 'catalogo' %}" style="color: var(--teal-medio); font-size: 13px; font-weight: 700; text-decoration: none;">← SEGUIR COMPRANDO</a>
         </div>
     </div>
 
+    <!-- RESUMEN DE COMPRA -->
     <div class="checkout-side-summary">
-        <h3 style="font-size: 16px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;">Resumen</h3>
+        <h3 style="font-size: 16px; font-weight: 800; text-transform: uppercase;">Resumen</h3>
 
         <div class="summary-row">
             <span>Subtotal</span>
@@ -47,20 +108,16 @@
             <span style="color: #10b981; font-weight: 600;">Gratis</span>
         </div>
 
-        <div class="group-field" style="margin: 10px 0 0 0;">
-            <label class="field-label">Código Promocional</label>
-            <div style="display: flex; gap: 8px;">
-                <input type="text" class="field-control" placeholder="SUMMER26" style="padding: 8px 12px; font-size: 12px;">
-                <button class="action-button btn-action-secondary btn-inline" style="text-transform: uppercase; font-size: 11px;">Aplicar</button>
-            </div>
-        </div>
-
         <div class="summary-total">
             <div style="font-size: 11px; color: var(--texto-secundario); font-weight: 500; text-transform: uppercase;">Total Estimado</div>
             <div>${{ total }} MXN</div>
         </div>
 
-        <button class="action-button btn-action-primary" style="margin-top: 10px;">Proceder al Pago →</button>
+        {% if carrito_items %}
+            <button type="submit" class="action-button btn-action-primary" style="margin-top: 10px; width: 100%; cursor: pointer;">
+                Procesar Pago Ahora →
+            </button>
+        {% endif %}
     </div>
-</div>
+</form>
 {% endblock %}
