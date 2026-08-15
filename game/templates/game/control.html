@@ -1,154 +1,59 @@
 {% extends "game/encabezado.html" %}
-{% block title %}Control de Productos - Game Center{% endblock %}
+{% block title %}Control - Game Center{% endblock %}
 {% load static %}
 {% block active_control %}active{% endblock %}
 
 {% block contenido %}
-<div class="dashboard-container" style="width: 100%;">
-    
-    <!-- ENCABEZADO Y BOTÓN DE AGREGAR -->
-    <div class="dashboard-header-flex" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div class="dashboard-header-title" style="font-size: 20px; font-weight: 800;">Ítems Activos en el Catálogo</div>
-        <button onclick="abrirModalProducto()" class="action-button btn-action-primary" style="background-color: var(--cyan-activo, #10b981); color: #000000; font-weight: 800; padding: 10px 18px; border-radius: 6px; text-transform: uppercase; border: none; cursor: pointer;">
+<div class="dashboard-container">
+    <div class="dashboard-header-flex">
+        <div class="dashboard-header-title">Ítems Activos en el Catálogo</div>
+        <a href="{% url 'altaproducto' %}" class="action-button btn-action-primary btn-inline" style="background-color: var(--cyan-activo); color: #000000; font-weight: 800; padding: 10px 18px; border-radius: 6px; text-transform: uppercase; text-decoration: none;">
             + AGREGAR PRODUCTO
-        </button>
+        </a>
     </div>
     
-    <!-- TABLA DE PRODUCTOS -->
-    <div class="row-list-container" style="display: flex; flex-direction: column; gap: 12px;">
+    <div class="row-list-container">
         {% for prod in productos %}
-            <div class="row-item-card" style="background-color: #16161a; border: 1px solid {% if prod.existencia < 3 %}#ef4444{% else %}#2a2a2f{% endif %}; border-radius: 8px; padding: 15px; display: grid; grid-template-columns: 2fr 1fr 1fr 1.5fr 1.5fr; align-items: center; gap: 10px; {% if prod.existencia < 3 %}border-left: 5px solid #ef4444;{% endif %}">
+            <!-- Marca el borde en rojo si hay menos de 3 piezas -->
+            <div class="row-item-card" {% if prod.existencia_inicial < 3 %}style="border-left: 4px solid var(--coral-alerta);"{% endif %}>
                 
-                <!-- NOMBRE -->
-                <div class="row-cell-primary" style="font-weight: bold; color: #fff;">
-                    {{ prod.nombre }}
-                </div>
+                <!-- Nombre del Producto -->
+                <div class="row-cell-primary">{{ prod.nombre }}</div>
                 
-                <!-- CLASIFICACIÓN / SKU -->
-                <div class="row-cell-info" style="color: #aaa; font-size: 13px;">
-                    {{ prod.get_clasificacion_display|default:prod.clasificacion }}
-                </div>
+                <!-- Clasificación -->
+                <div class="row-cell-info">{{ prod.clasificacion }}</div>
                 
-                <!-- PRECIO -->
-                <div class="row-cell-info" style="color: #fff; font-weight: bold;">
-                    ${{ prod.costo_comercial|default:prod.precio }} MXN
-                </div>
+                <!-- Costo Comercial (Corregido) -->
+                <div class="row-cell-info"><strong>${{ prod.costo_comercial }} MXN</strong></div>
                 
-                <!-- STOCK (ROJO SI ES MENOR A 3) -->
+                <!-- Existencia Inicial con alerta roja si es menor a 3 -->
                 <div class="row-cell-status">
-                    {% if prod.existencia_inicial < 3 or prod.existencia < 3 %}
-                        <span class="status-pill" style="background-color: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.4); padding: 5px 10px; border-radius: 4px; font-size: 12px; font-weight: bold;">
-                            ⚠️ {{ prod.existencia_inicial|default:prod.existencia }} Unidades
+                    {% if prod.existencia_inicial < 3 %}
+                        <span class="status-pill" style="background-color: rgba(239, 68, 68, 0.15); color: var(--coral-alerta); border: 1px solid rgba(239, 68, 68, 0.3);">
+                            ⚠️ {{ prod.existencia_inicial }} Unidades
                         </span>
                     {% else %}
-                        <span class="status-pill" style="background-color: rgba(16, 185, 129, 0.15); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.3); padding: 5px 10px; border-radius: 4px; font-size: 12px;">
-                            {{ prod.existencia_inicial|default:prod.existencia }} Unidades
+                        <span class="status-pill">
+                            {{ prod.existencia_inicial }} Unidades
                         </span>
                     {% endif %}
                 </div>
 
-                <!-- ACCIONES -->
-                <div class="row-cell-actions" style="display: flex; gap: 8px; justify-content: flex-end;">
-                    <button onclick="editarProducto('{{ prod.id }}', '{{ prod.nombre }}', '{{ prod.clasificacion }}', '{{ prod.costo_comercial|default:prod.precio }}', '{{ prod.existencia_inicial|default:prod.existencia }}', '{{ prod.especificaciones_tecnicas }}')" class="action-button btn-action-primary btn-inline" style="padding: 6px 12px; cursor: pointer;">
-                        Editar
-                    </button>
-                    <form action="{% url 'eliminar_producto' prod.id %}" method="POST" style="margin: 0;" onsubmit="return confirm('¿Deseas eliminar este producto del catálogo?');">
+                <!-- Botones de Acción -->
+                <div class="row-cell-actions">
+                    <a href="{% url 'editar_producto' prod.id %}" class="action-button btn-action-primary btn-inline" style="text-decoration: none; text-align: center;">Editar</a>                    
+                    <form action="{% url 'eliminar_producto' prod.id %}" method="POST" style="display: inline;" onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
                         {% csrf_token %}
-                        <button type="submit" class="action-button btn-action-delete btn-inline" style="padding: 6px 12px; cursor: pointer;">
-                            Remover
-                        </button>
+                        <button type="submit" class="action-button btn-action-delete btn-inline">Remover</button>
                     </form>
                 </div>
 
             </div>
         {% empty %}
-            <div style="text-align: center; padding: 30px; background-color: #16161a; border-radius: 8px;">
-                <p style="color: #aaa; margin: 0;">No hay productos registrados en la base de datos.</p>
+            <div class="row-item-card" style="justify-content: center; color: #aaa;">
+                No hay productos registrados en la base de datos todavía.
             </div>
         {% endfor %}
     </div>
-
 </div>
-
-<!-- MODAL EMERGENTE PARA DAR DE ALTA O EDITAR CON TU FORMULARIO -->
-<div id="modal-producto" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.85); backdrop-filter: blur(4px); z-index: 9999; justify-content: center; align-items: center; padding: 20px;">
-    <div style="background-color: #16161a; border: 1px solid #2a2a2f; border-radius: 10px; padding: 30px; width: 100%; max-width: 650px; max-height: 90vh; overflow-y: auto;">
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #2a2a2f; padding-bottom: 10px;">
-            <h3 id="modal-titulo" style="font-size: 20px; font-weight: bold; margin: 0; color: #fff;">Dar de Alta Producto</h3>
-            <button type="button" onclick="cerrarModalProducto()" style="background: none; border: none; color: #aaa; font-size: 24px; cursor: pointer;">&times;</button>
-        </div>
-
-        <form id="form-producto" method="POST" action="{% url 'altaproducto' %}" enctype="multipart/form-data" style="display: flex; flex-direction: column; gap: 15px;">
-            {% csrf_token %}
-            <input type="hidden" name="producto_id" id="prod_id">
-            
-            <div class="group-field">
-                <label class="field-label" style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Nombre del Componente</label>
-                <input type="text" name="nombre" id="prod_nombre" class="field-control" placeholder="ej. Kit de Simulación G Master" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;" required>
-            </div>
-
-            <div class="group-field">
-                <label class="field-label" style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">SKU / Clasificación</label>
-                <select name="clasificacion" id="prod_clasificacion" class="field-control" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
-                    <option value="SIM_AVANZADA">Simulación Avanzada</option>
-                    <option value="AUDIO_INMERSIVO">Audio Inmersivo</option>
-                    <option value="MOBILIARIO_PRO">Mobiliario Pro</option>
-                </select>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                <div class="group-field">
-                    <label class="field-label" style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Costo Comercial ($ MXN)</label>
-                    <input type="number" name="costo_comercial" id="prod_costo" class="field-control" placeholder="7999.00" step="0.01" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;" required>
-                </div>
-
-                <div class="group-field">
-                    <label class="field-label" style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Existencia Inicial Almacén</label>
-                    <input type="number" name="existencia_inicial" id="prod_existencia" class="field-control" placeholder="5" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;" required>
-                </div>
-            </div>
-
-            <div class="group-field">
-                <label class="field-label" style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Especificaciones Técnicas</label>
-                <textarea name="especificaciones_tecnicas" id="prod_especificaciones" class="field-control" rows="3" placeholder="Detalles de materiales, compatibilidad..." style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px; resize: vertical;"></textarea>
-            </div>
-
-            <div class="group-field">
-                <label class="field-label" style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Imagen del Componente</label>
-                <input type="file" name="imagen" class="field-control" accept="image/*" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
-            </div>
-
-            <div style="display: flex; gap: 10px; margin-top: 15px; justify-content: flex-end;">
-                <button type="button" onclick="cerrarModalProducto()" style="background-color: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">Cancelar</button>
-                <button type="submit" style="background-color: #10b981; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">Guardar Producto</button>
-            </div>
-        </form>
-
-    </div>
-</div>
-
-<script>
-    function abrirModalProducto() {
-        document.getElementById('modal-titulo').innerText = "Dar de Alta Producto";
-        document.getElementById('form-producto').reset();
-        document.getElementById('prod_id').value = "";
-        document.getElementById('modal-producto').style.display = 'flex';
-    }
-
-    function editarProducto(id, nombre, clasificacion, costo, existencia, especificaciones) {
-        document.getElementById('modal-titulo').innerText = "Modificar Producto #" + id;
-        document.getElementById('prod_id').value = id;
-        document.getElementById('prod_nombre').value = nombre;
-        document.getElementById('prod_clasificacion').value = clasificacion;
-        document.getElementById('prod_costo').value = costo;
-        document.getElementById('prod_existencia').value = existencia;
-        document.getElementById('prod_especificaciones').value = especificaciones || '';
-        document.getElementById('modal-producto').style.display = 'flex';
-    }
-
-    function cerrarModalProducto() {
-        document.getElementById('modal-producto').style.display = 'none';
-    }
-</script>
 {% endblock %}

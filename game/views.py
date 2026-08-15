@@ -3,6 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Carrito, ElementoCarrito
 from django.contrib.auth.hashers import check_password, make_password
+from django.db.models import Sum, Count, F
 
 
 def admin_required(view_func):
@@ -36,6 +37,7 @@ def _obtener_o_crear_carrito_db(request):
 
 
 @admin_required
+@admin_required
 def altaproducto(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
@@ -58,19 +60,56 @@ def altaproducto(request):
                     imagen=imagen 
                 )
                 messages.success(request, f'Producto "{nombre}" creado exitosamente.')
-                return redirect('catalogo')
+                return redirect('control')
             except Exception as e:
                 messages.error(request, f'Error al crear el producto: {str(e)}')
     
-    clasificacion_filter = request.GET.get('clasificacion', None)
-    productos = Producto.objects.filter(clasificacion=clasificacion_filter) if clasificacion_filter else Producto.objects.all()
-    
     return render(request, 'game/altaproducto.html', {
-        'productos': productos,
         'clasificaciones': Producto.CLASIFICACION_CHOICES,
-        'clasificacion_actual': clasificacion_filter,
     })
 
+
+@admin_required
+def editar_producto(request, id):
+    producto = get_object_or_404(Producto, pk=id)
+
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre', '').strip()
+        clasificacion = request.POST.get('clasificacion', 'SIM_AVANZADA')
+        costo_comercial = request.POST.get('costo_comercial', 0)
+        especificaciones_tecnicas = request.POST.get('especificaciones_tecnicas', '').strip()
+        existencia_inicial = request.POST.get('existencia_inicial', 0)
+        imagen = request.FILES.get('imagen')
+
+        if not nombre or not costo_comercial or not existencia_inicial:
+            messages.error(request, 'Por favor completa todos los campos requeridos.')
+        else:
+            try:
+                producto.nombre = nombre
+                producto.clasificacion = clasificacion
+                producto.costo_comercial = costo_comercial
+                producto.especificaciones_tecnicas = especificaciones_tecnicas
+                producto.existencia_inicial = int(existencia_inicial)
+                if imagen:
+                    producto.imagen = imagen
+                producto.save()
+                messages.success(request, f'Producto "{nombre}" actualizado correctamente.')
+                return redirect('control')
+            except Exception as e:
+                messages.error(request, f'Error al actualizar el producto: {str(e)}')
+
+    return render(request, 'game/editarproducto.html', {
+        'producto': producto,
+        'clasificaciones': Producto.CLASIFICACION_CHOICES,
+    })
+@admin_required
+def eliminar_producto(request, id):
+    if request.method == 'POST':
+        producto = get_object_or_404(Producto, pk=id)
+        nombre = producto.nombre
+        producto.delete()
+        messages.success(request, f'Producto "{nombre}" eliminado correctamente.')
+    return redirect('control')
 
 def catalogo(request):
     clasificacion_filter = request.GET.get('clasificacion', None)
@@ -90,7 +129,13 @@ def detallesproducto(request, producto_id):
 
 @admin_required
 def control(request):
-    return render(request, 'game/control.html')
+    # Traemos todos los productos registrados en la BD
+    productos = Producto.objects.all()
+    
+    # Se los enviamos al HTML
+    return render(request, 'game/control.html', {
+        'productos': productos
+    })
 
 
 @admin_required
@@ -470,3 +515,66 @@ def logout_view(request):
     request.session.flush()
     messages.info(request, 'Has cerrado sesión exitosamente.')
     return redirect('login')
+
+# --- ADMINISTRACIÓN DE OPINIONES ---
+@admin_required
+def admin_opiniones(request):
+    opiniones_lista = Opinión.objects.all().order_by('-id')
+    return render(request, 'game/admin_opiniones.html', {'opiniones': opiniones_lista})
+
+
+@admin_required
+def eliminar_opinion(request, id):
+    if request.method == 'POST':
+        opinion = get_object_or_404(Opinión, pk=id)
+        opinion.delete()
+        messages.success(request, 'La opinión fue eliminada correctamente.')
+    return redirect('admin_opiniones')
+
+
+# --- PERFIL DE USUARIO (ACTUALIZADO) ---
+@login_required_custom
+def perfil(request):
+    usuario_id = request.session.get('usuario_id')
+    usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+    
+    direcciones = Direccion.objects.filter(usuario=usuario_obj)
+    ordenes = Orden.objects.filter(usuario=usuario_obj).order_by('-created')
+    mis_opiniones = Opinión.objects.filter(user=usuario_obj.username).order_by('-id')
+
+    return render(request, 'game/perfil.html', {
+        'usuario': usuario_obj,
+        'direcciones': direcciones,
+        'ordenes': ordenes,
+        'opiniones': mis_opiniones
+    })
+
+
+# --- ESTADÍSTICAS DE PRODUCTOS ---
+@admin_required
+def admin_estadisticas(request):
+    total_productos = Producto.objects.count()
+    productos_bajo_stock = Producto.objects.filter(existencia_inicial__lt=3).count()
+    total_ingresos = Orden.objects.aggregate(Sum('total_neto'))['total_neto__sum'] or 0
+    total_pedidos = Orden.objects.count()
+
+    # Cálculo de unidades vendidas e ingresos por cada producto
+    productos_stats = Producto.objects.annotate(
+        unidades_vendidas=Sum('ordenitem__cantidad'),
+        ingresos_generados=Sum(F('ordenitem__cantidad') * F('ordenitem__precio_unitario'))
+    ).order_by('-unidades_vendidas')
+
+    return render(request, 'game/admin_estadisticas.html', {
+        'total_productos': total_productos,
+        'productos_bajo_stock': productos_bajo_stock,
+        'total_ingresos': total_ingresos,
+        'total_pedidos': total_pedidos,
+        'productos_stats': productos_stats,
+    })
+
+
+# --- LISTADO GENERAL DE PEDIDOS (ADMIN) ---
+@admin_required
+def admin_pedidos(request):
+    pedidos = Orden.objects.all().order_by('-created')
+    return render(request, 'game/admin_pedidos.html', {'pedidos': pedidos})

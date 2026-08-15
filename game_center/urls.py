@@ -29,8 +29,16 @@ urlpatterns = [
     # Administración Custom (Protegida por @admin_required)
     path('altaproducto/', views.altaproducto, name='altaproducto'),
     path('control/', views.control, name='control'),
+    path('editar-producto/<int:id>/', views.editar_producto, name='editar_producto'),
+    path('eliminar-producto/<int:id>/', views.eliminar_producto, name='eliminar_producto'),  # <-- RUTA AGREGADA
     path('admin-usuarios/', views.lista_usuarios, name='lista_usuarios'),
-]
+    # Administración de Opiniones
+    path('admin-opiniones/', views.admin_opiniones, name='admin_opiniones'),
+    path('eliminar-opinion/<int:id>/', views.eliminar_opinion, name='eliminar_opinion'),
+    # Estadísticas y Pedidos Admin
+    path('admin-estadisticas/', views.admin_estadisticas, name='admin_estadisticas'),
+    path('admin-pedidos/', views.admin_pedidos, name='admin_pedidos'),
+    ]
 
 
 # Configuración para servir archivos multimedia (imágenes de productos) en desarrollo

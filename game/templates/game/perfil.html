@@ -175,6 +175,17 @@
             </div>
         {% endif %}
     </div>
+    <div class="profile-section" style="margin-top: 30px;">
+    <h3>Mis Opiniones Publicadas</h3>
+    {% for op in opiniones %}
+        <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid var(--cyan-activo, #00f0ff);">
+            <p style="margin: 0; font-style: italic;">"{{ op.message }}"</p>
+            <small style="color: #888;">Estado: {{ op.status }}</small>
+        </div>
+    {% empty %}
+        <p style="color: #aaa;">Aún no has publicado ninguna opinión.</p>
+    {% endfor %}
+</div>
 
 </div>
 

@@ -16,15 +16,7 @@
             Llena el siguiente formulario para registrarte en Game Center.
         </p>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="form-message {{ message.tags }}"
-                     style="margin-bottom:15px;
-                            color:{% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %};">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
+       
 
         <form action="{% url 'registro' %}" method="post">
 

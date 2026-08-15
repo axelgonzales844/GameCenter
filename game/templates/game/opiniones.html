@@ -8,7 +8,6 @@
 {% block contenido %}
 <div class="feed-layout">
 
-<<<<<<< HEAD
     <!-- COLUMNA IZQUIERDA: Formulario -->
     <div style="background-color: var(--crema-bloque); padding: 35px; border-radius: 8px; border: 1px solid #2a2a2f;">
         <h3 style="font-size: 18px; font-weight: 800; margin-bottom: 20px;">Redactar Comentario</h3>
@@ -34,7 +33,7 @@
         {% else %}
             <!-- BLOQUE BLOQUEADO PARA INVITADOS -->
             <div style="text-align: center; padding: 20px 10px;">
-                <!-- ICONO DE CANDADO (SVG) -->
+                <!-- ICONO DE CANDADO -->
                 <div style="margin-bottom: 12px; display: flex; justify-content: center;">
                     <svg xmlns="http://www.w3.org/2000/svg" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="#aaa" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                         <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -51,41 +50,8 @@
             </div>
         {% endif %}
     </div>
-=======
-    <section style="background: var(--crema-bloque); padding: 35px; border-radius: 8px; border: 1px solid #2a2a2f;">
-        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 10px;">Comparte tu opinión</h3>
-        <p style="margin-bottom: 20px; color: var(--texto-secundario);">
-            Cuéntanos tu experiencia o envíanos alguna sugerencia.
-        </p>
 
-        {% if messages %}
-            {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}" style="margin-bottom: 10px;">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
-
-        <form method="post">
-            {% csrf_token %}
->>>>>>> 06283ae7f5b3f231916a7d826afb93147e63dbf1
-
-            <div class="group-field">
-                <label for="usuario" class="field-label">Usuario</label>
-                <input type="text" id="usuario" name="usuario" class="field-control" placeholder="Escribe tu usuario" maxlength="150" required>
-            </div>
-
-            <div class="group-field">
-                <label for="opinion" class="field-label">Comentario</label>
-                <textarea id="opinion" name="opinion" class="field-control textarea-no-resize" rows="4" placeholder="Escribe tu comentario..." required></textarea>
-            </div>
-
-            <button type="submit" class="action-button btn-action-primary">
-                Publicar comentario
-            </button>
-        </form>
-    </section>
-
+    <!-- COLUMNA DERECHA: Lista de Comentarios -->
     <section>
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
             <h3 style="margin:0;">Comentarios</h3>

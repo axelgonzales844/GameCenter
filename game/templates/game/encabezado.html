@@ -18,26 +18,27 @@
                 </div>
                 <nav class="catalog2-nav">
                     
-                    <!-- 1. PESTAÑAS PÚBLICAS (Visibles para todos) -->
+                    <!-- 1. PESTAÑAS PÚBLICAS -->
                     <a href="{% url 'catalogo' %}" class="nav-link {% block active_catalogo %}{% endblock %}">Catálogo</a>
                     <a href="{% url 'carrito' %}" class="nav-link {% block active_carrito %}{% endblock %}">Carrito</a>
                     <a href="{% url 'opiniones' %}" class="nav-link {% block active_opiniones %}{% endblock %}">Opiniones</a>
 
                     <!-- 2. PESTAÑAS EXCLUSIVAS DE ADMINISTRADOR -->
                     {% if request.session.is_admin %}
-                        <a href="{% url 'altaproducto' %}" class="nav-link {% block active_alta %}{% endblock %}">Subir Producto</a>
                         <a href="{% url 'control' %}" class="nav-link {% block active_control %}{% endblock %}">Control</a>
+                        <a href="{% url 'admin_pedidos' %}" class="nav-link {% block active_pedidos %}{% endblock %}">Pedidos</a>
+                        <a href="{% url 'admin_estadisticas' %}" class="nav-link {% block active_estadisticas %}{% endblock %}">Estadísticas</a>
+                        <a href="{% url 'admin_opiniones' %}" class="nav-link {% block active_admin_opiniones %}{% endblock %}">Gestión Reseñas</a>
                         <a href="{% url 'lista_usuarios' %}" class="nav-link {% block active_usuarios %}{% endblock %}">Usuarios</a>
                     {% endif %}
 
-                    <!-- 3. PESTAÑA EXCLUSIVA DE CLIENTE (Solo visible si está logueado y NO es admin) -->
+                    <!-- 3. PESTAÑA EXCLUSIVA DE CLIENTE -->
                     {% if request.session.usuario_id and not request.session.is_admin %}
                         <a href="{% url 'perfil' %}" class="nav-link {% block active_perfil %}{% endblock %}">Mi Perfil</a>
                     {% endif %}
 
-                    <!-- 4. CONTROL DE SESIÓN (Login/Registro vs Cierre) -->
+                    <!-- 4. CONTROL DE SESIÓN -->
                     {% if request.session.usuario_id %}
-                        <!-- 💡 CORREGIDO: Ahora apunta a la vista 'logout' que destruye la sesión -->
                         <a href="{% url 'logout' %}" class="nav-link" style="color: #ef4444;">Salir</a>
                     {% else %}
                         <a href="{% url 'login' %}" class="nav-link {% block active_login %}{% endblock %}">Login</a> 

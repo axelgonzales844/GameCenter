@@ -1,65 +1,58 @@
 {% extends "game/encabezado.html" %}
-{% block title %}Alta de Producto - Game Center{% endblock %}
+{% block title %}Editar Producto - Game Center{% endblock %}
 {% load static %}
-{% block active_alta %}active{% endblock %}
+{% block active_control %}active{% endblock %}
 
 {% block contenido %}
     <div class="dashboard-container">
-        <div class="title-section">Dar de Alta Producto</div>
-        
-        {% if messages %}
-        <div class="messages-container">
-            {% for message in messages %}
-                <div class="message-item {% if 'success' in message.tags %}success{% else %}error{% endif %}" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>{{ message }}</span>
-                    <button type="button" onclick="this.parentElement.remove()" style="background: transparent; border: none; color: #fff; font-weight: bold; cursor: pointer; font-size: 18px; margin-left: 15px;">&times;</button>
-                </div>
-            {% endfor %}
-        </div>
-        {% endif %}
+        <div class="title-section">Editar Componente: {{ producto.nombre }}</div>
         
         <form method="POST" class="form-grid" enctype="multipart/form-data">
             {% csrf_token %}
             <div>
                 <div class="group-field">
                     <label class="field-label">Nombre del Componente</label>
-                    <input type="text" name="nombre" class="field-control" placeholder="ej. Kit de Simulación G Master" required>
+                    <input type="text" name="nombre" class="field-control" value="{{ producto.nombre }}" required>
                 </div>
                 <div class="group-field">
                     <label class="field-label">SKU / Clasificación</label>
                     <select name="clasificacion" class="field-control">
                         {% for clave, valor in clasificaciones %}
-                            <option value="{{ clave }}">{{ valor }}</option>
-                        {% empty %}
-                            <option value="SIM_AVANZADA">Simulación Avanzada</option>
-                            <option value="AUDIO_INMERSIVO">Audio Inmersivo</option>
-                            <option value="MOBILIARIO_PRO">Mobiliario Pro</option>
+                            <option value="{{ clave }}" {% if producto.clasificacion == clave %}selected{% endif %}>
+                                {{ valor }}
+                            </option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="group-field">
                     <label class="field-label">Costo Comercial ($ MXN)</label>
-                    <input type="number" name="costo_comercial" class="field-control" placeholder="7999.00" step="0.01" required>
+                    <input type="number" name="costo_comercial" class="field-control" step="0.01" value="{{ producto.costo_comercial }}" required>
                 </div>
             </div>
             <div>
                 <div class="group-field">
                     <label class="field-label">Especificaciones Técnicas</label>
-                    <textarea name="especificaciones_tecnicas" class="field-control textarea-no-resize" rows="5" placeholder="Detalles de materiales, compatibilidad..."></textarea>
+                    <textarea name="especificaciones_tecnicas" class="field-control textarea-no-resize" rows="5">{{ producto.especificaciones_tecnicas }}</textarea>
                 </div>
                 <div class="group-field">
                     <label class="field-label">Existencia Inicial Almacén</label>
-                    <input type="number" name="existencia_inicial" class="field-control" placeholder="5" required>
+                    <input type="number" name="existencia_inicial" class="field-control" value="{{ producto.existencia_inicial }}" required>
                 </div>
                 <div class="group-field">
                     <label class="field-label">Imagen del Componente</label>
+                    {% if producto.imagen %}
+                        <div style="margin-bottom: 8px; display: flex; align-items: center; gap: 10px;">
+                            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" style="width: 50px; height: 50px; object-fit: cover; border-radius: 4px; border: 1px solid #333;">
+                            <span style="font-size: 12px; color: #aaa;">Imagen actual</span>
+                        </div>
+                    {% endif %}
                     <input type="file" name="imagen" class="field-control" accept="image/*" style="padding: 8px 15px;">
                 </div>
             </div>
             
             <div class="form-buttons">
-                <button type="reset" class="action-button btn-action-secondary btn-reset">Descartar</button>
-                <button type="submit" class="action-button btn-action-primary btn-submit">Registrar Producto</button>
+                <a href="{% url 'control' %}" class="action-button btn-action-secondary btn-reset" style="text-decoration: none; text-align: center; display: inline-block;">Cancelar</a>
+                <button type="submit" class="action-button btn-action-primary btn-submit">Guardar Cambios</button>
             </div>
         </form>
     </div>

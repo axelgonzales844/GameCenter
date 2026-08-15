@@ -32,19 +32,6 @@
             Inicia sesión con tu usuario y contraseña para continuar.
         </p>
 
-<<<<<<< HEAD
-=======
-        {% if messages %}
-            {% for message in messages %}
-                <div class="form-message {{ message.tags }}"
-                     style="margin-bottom:15px;
-                            color:{% if message.tags == 'error' %}#ef4444{% else %}#10b981{% endif %};">
-                    {{ message }}
-                </div>
-            {% endfor %}
-        {% endif %}
->>>>>>> 06283ae7f5b3f231916a7d826afb93147e63dbf1
-
         <form method="post" action="{% url 'login' %}">
 
             {% csrf_token %}

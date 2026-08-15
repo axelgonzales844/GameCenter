@@ -1,0 +1,54 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Estadísticas de Productos - Game Center{% endblock %}
+
+{% block contenido %}
+<div class="dashboard-container">
+    <div class="dashboard-header-flex">
+        <div class="dashboard-header-title">Métricas y Rendimiento de Productos</div>
+        <a href="{% url 'control' %}" class="action-button btn-action-secondary btn-inline">← Volver al Panel</a>
+    </div>
+
+    <!-- Tarjetas Resumen -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
+        <div style="background: #1e1e24; padding: 20px; border-radius: 8px; text-align: center;">
+            <span style="color: #aaa; font-size: 13px;">Ingresos Totales</span>
+            <h2 style="color: #00f0ff; margin: 5px 0;">${{ total_ingresos|floatformat:2 }} MXN</h2>
+        </div>
+        <div style="background: #1e1e24; padding: 20px; border-radius: 8px; text-align: center;">
+            <span style="color: #aaa; font-size: 13px;">Total Pedidos</span>
+            <h2 style="color: #fff; margin: 5px 0;">{{ total_pedidos }}</h2>
+        </div>
+        <div style="background: #1e1e24; padding: 20px; border-radius: 8px; text-align: center;">
+            <span style="color: #aaa; font-size: 13px;">Catálogo Activo</span>
+            <h2 style="color: #fff; margin: 5px 0;">{{ total_productos }}</h2>
+        </div>
+        <div style="background: #1e1e24; padding: 20px; border-radius: 8px; text-align: center;">
+            <span style="color: #aaa; font-size: 13px;">Stock Bajo (&lt;3)</span>
+            <h2 style="color: #ff4d4d; margin: 5px 0;">{{ productos_bajo_stock }}</h2>
+        </div>
+    </div>
+
+    <!-- Tabla de Rendimiento -->
+    <h3 style="margin-top: 30px;">Ventas por Producto</h3>
+    <table style="width: 100%; border-collapse: collapse; background: #18181c; border-radius: 8px; overflow: hidden; text-align: left;">
+        <thead>
+            <tr style="background: #25252b; color: #888; font-size: 13px;">
+                <th style="padding: 12px 15px;">Producto</th>
+                <th style="padding: 12px 15px;">Stock Actual</th>
+                <th style="padding: 12px 15px;">Unidades Vendidas</th>
+                <th style="padding: 12px 15px;">Ingresos Generados</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in productos_stats %}
+            <tr style="border-bottom: 1px solid #2a2a30;">
+                <td style="padding: 12px 15px;"><strong>{{ p.nombre }}</strong></td>
+                <td style="padding: 12px 15px;">{{ p.existencia_inicial }}</td>
+                <td style="padding: 12px 15px;">{{ p.unidades_vendidas|default:0 }}</td>
+                <td style="padding: 12px 15px; color: #00f0ff;">${{ p.ingresos_generados|default:0|floatformat:2 }} MXN</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
