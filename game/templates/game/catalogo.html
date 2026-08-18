@@ -7,24 +7,34 @@
 
 
 {% block contenido %}
-<div class="catalog-main-container" style="display: flex; flex-direction: column; gap: 30px; width: 100%; padding: 20px 0;">
-
-    <!-- 1. Fila de Filtros -->
-    <div class="catalog2-filters" style="display: flex; align-items: center; gap: 15px; flex-wrap: wrap; width: 100%;">
-        <span class="filter-label">Filtrar por:</span>
-        <a href="{% url 'catalogo' %}" class="filter-btn {% if not clasificacion_actual %}active{% endif %}" >
-            Todo el Stock
-        </a>
-        {% for code, label in clasificaciones %}
-            <a href="?clasificacion={{ code }}" class="filter-btn {% if clasificacion_actual == code %}active{% endif %}">
-                {{ label }}
+<!-- BUSCADOR: bloque del buscador y filtros del catálogo -->
+<div class="catalog-toolbar">
+    <div class="catalog-toolbar__row">
+        <div class="catalog-toolbar__group catalog-toolbar__filters">
+            <span class="filter-label">Filtrar por:</span>
+            <a href="{% url 'catalogo' %}" class="filter-btn {% if not clasificacion_actual %}active{% endif %}">
+                Todo el Stock
             </a>
-        {% endfor %}
+            {% for code, label in clasificaciones %}
+                <a href="?clasificacion={{ code }}{% if query_actual %}&q={{ query_actual }}{% endif %}" class="filter-btn {% if clasificacion_actual == code %}active{% endif %}">
+                    {{ label }}
+                </a>
+            {% endfor %}
+        </div>
+
+        <form method="get" action="{% url 'catalogo' %}" class="catalog-search-form">
+            {% if clasificacion_actual %}
+                <input type="hidden" name="clasificacion" value="{{ clasificacion_actual }}">
+            {% endif %}
+            <input type="search" name="q" value="{{ query_actual }}" placeholder="Buscar producto..." class="catalog-search-input" aria-label="Buscar productos">
+            <button type="submit" class="filter-btn active">Buscar</button>
+            {% if query_actual %}
+                <a href="{% if clasificacion_actual %}?clasificacion={{ clasificacion_actual }}{% else %}{% url 'catalogo' %}{% endif %}" class="filter-btn filter-btn--ghost">Limpiar</a>
+            {% endif %}
+        </form>
     </div>
+</div>
 
-</div> <!-- Cierre del contenedor estructural de arriba -->
-
-<!-- 3. TABLA DE PRODUCTOS -->
 <div class="table-container" style="margin-top: 20px;">
     {% if productos %}
         <div class="products-grid">
@@ -49,8 +59,14 @@
                     <div class="card-body">
                         <h3 class="product-name">{{ producto.nombre }}</h3>
                         
-                        <div class="product-price">
-                            ${{ producto.costo_comercial }}
+                        <div class="product-price" style="display: flex; flex-direction: column; align-items: flex-start; gap: 5px;">
+                            {% if producto.descuento %}
+                                <span style="text-decoration: line-through; color: #9ca3af; font-size: 13px;">${{ producto.costo_comercial|floatformat:2 }}</span>
+                                <span style="color: #10b981; font-weight: 800;">${{ producto.precio_con_descuento|floatformat:2 }} MXN</span>
+                                <span style="background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px;">-{{ producto.descuento }}%</span>
+                            {% else %}
+                                <span>${{ producto.costo_comercial|floatformat:2 }} MXN</span>
+                            {% endif %}
                         </div>
                         
                         <div class="product-stock">
@@ -83,7 +99,11 @@
         </div>
     {% else %}
         <div class="empty-message">
-            <p>No hay productos disponibles en esta categoría</p>
+            {% if query_actual %}
+                <p>No se encontraron resultados para "{{ query_actual }}".</p>
+            {% else %}
+                <p>No hay productos disponibles en esta categoría</p>
+            {% endif %}
         </div>
     {% endif %}
 </div>

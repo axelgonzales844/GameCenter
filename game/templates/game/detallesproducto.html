@@ -20,8 +20,14 @@
 
             <h1 style="font-size: 32px; font-weight: 800; margin: 10px 0;">{{ producto.nombre }}</h1>
 
-            <div style="font-size: 24px; font-weight: 800; color: #10b981; margin-bottom: 20px;">
-                ${{ producto.costo_comercial }} MXN
+            <div style="margin-bottom: 20px;">
+                {% if producto.descuento %}
+                    <div style="font-size: 14px; color: #9ca3af; text-decoration: line-through; margin-bottom: 4px;">${{ producto.costo_comercial|floatformat:2 }} MXN</div>
+                    <div style="font-size: 24px; font-weight: 800; color: #10b981;">${{ producto.precio_con_descuento|floatformat:2 }} MXN</div>
+                    <div style="margin-top: 8px; display: inline-block; background: rgba(245, 158, 11, 0.18); color: #fbbf24; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 999px;">Ahorro del {{ producto.descuento }}%</div>
+                {% else %}
+                    <div style="font-size: 24px; font-weight: 800; color: #10b981;">${{ producto.costo_comercial|floatformat:2 }} MXN</div>
+                {% endif %}
             </div>
 
             <div style="font-size: 12px; font-weight: bold; color: #38a169; margin-bottom: 15px;">

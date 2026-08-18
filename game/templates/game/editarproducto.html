@@ -28,11 +28,27 @@
                     <label class="field-label">Costo Comercial ($ MXN)</label>
                     <input type="number" name="costo_comercial" class="field-control" step="0.01" value="{{ producto.costo_comercial }}" required>
                 </div>
+                <div class="group-field">
+                    <label class="field-label">Descuento (%)</label>
+                    <input type="number" name="descuento" class="field-control" min="0" max="100" value="{{ producto.descuento }}" required>
+                </div>
+                <div class="group-field">
+                    <label class="field-label">Inicio del descuento</label>
+                    <input type="datetime-local" name="descuento_inicio" class="field-control" value="{% if producto.descuento_inicio %}{{ producto.descuento_inicio|date:'Y-m-d\TH:i' }}{% endif %}">
+                </div>
             </div>
             <div>
                 <div class="group-field">
                     <label class="field-label">Especificaciones Técnicas</label>
                     <textarea name="especificaciones_tecnicas" class="field-control textarea-no-resize" rows="5">{{ producto.especificaciones_tecnicas }}</textarea>
+                </div>
+                <div class="group-field">
+                    <label class="field-label">Fin del descuento</label>
+                    <input type="datetime-local" name="descuento_fin" class="field-control" value="{% if producto.descuento_fin %}{{ producto.descuento_fin|date:'Y-m-d\TH:i' }}{% endif %}">
+                </div>
+                <div class="group-field">
+                    <label class="field-label">Stock mínimo para aplicar descuento</label>
+                    <input type="number" name="descuento_minimo_unidades" class="field-control" min="0" value="{{ producto.descuento_minimo_unidades }}">
                 </div>
                 <div class="group-field">
                     <label class="field-label">Existencia Inicial Almacén</label>

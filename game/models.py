@@ -1,4 +1,7 @@
+from decimal import Decimal
+
 from django.db import models
+from django.utils import timezone
 
 # Create your models here.
 
@@ -23,6 +26,10 @@ class Producto(models.Model):
     nombre = models.CharField(max_length=255, verbose_name="Nombre del Componente")
     clasificacion = models.CharField(max_length=50, choices=CLASIFICACION_CHOICES, default='SIM_AVANZADA', verbose_name="SKU / Clasificación")
     costo_comercial = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Costo Comercial ($ MXN)")
+    descuento = models.PositiveIntegerField(default=0, verbose_name="Descuento (%)")
+    descuento_inicio = models.DateTimeField(blank=True, null=True, verbose_name="Inicio del descuento")
+    descuento_fin = models.DateTimeField(blank=True, null=True, verbose_name="Fin del descuento")
+    descuento_minimo_unidades = models.PositiveIntegerField(default=0, verbose_name="Stock mínimo para descuento")
     especificaciones_tecnicas = models.TextField(blank=True, null=True, verbose_name="Especificaciones Técnicas")
     existencia_inicial = models.PositiveIntegerField(default=0, verbose_name="Existencia Inicial Almacén")
     
@@ -35,6 +42,21 @@ class Producto(models.Model):
         verbose_name = "Producto"
         verbose_name_plural = "Productos"
         ordering = ['-created']
+
+    def precio_con_descuento(self):
+        if self.descuento <= 0:
+            return self.costo_comercial
+
+        ahora = timezone.now()
+        if self.descuento_inicio and ahora < self.descuento_inicio:
+            return self.costo_comercial
+        if self.descuento_fin and ahora > self.descuento_fin:
+            return self.costo_comercial
+        if self.descuento_minimo_unidades and self.existencia_inicial < self.descuento_minimo_unidades:
+            return self.costo_comercial
+
+        descuento_decimal = Decimal(self.descuento) / Decimal('100')
+        return self.costo_comercial * (Decimal('1') - descuento_decimal)
 
     def __str__(self):
         return f"{self.nombre} ({self.get_clasificacion_display()})"

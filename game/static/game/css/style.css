@@ -388,6 +388,70 @@ select.field-control option { background-color: #1e1e24; color: var(--texto-prin
 .category-btn.active, .filter-btn.active { background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%); color: white; border-color: transparent; }
 .filter-btn.active { background: var(--teal-medio); color: #000; }
 
+.catalog-toolbar {
+    background: linear-gradient(135deg, rgba(122, 79, 247, 0.18), rgba(17, 24, 39, 0.9));
+    border: 1px solid rgba(122, 79, 247, 0.35);
+    border-radius: 14px;
+    padding: 18px 20px;
+    box-shadow: 0 10px 30px rgba(12, 12, 18, 0.35);
+    margin-bottom: 8px;
+}
+
+.catalog-toolbar__row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.catalog-toolbar__group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.catalog-search-form {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-left: auto;
+}
+
+.catalog-search-input {
+    width: min(310px, 100%);
+    background-color: rgba(10, 10, 15, 0.9);
+    border: 1px solid rgba(122, 79, 247, 0.45);
+    border-radius: 10px;
+    color: var(--texto-principal);
+    font-size: 14px;
+    padding: 12px 14px;
+    outline: none;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.catalog-search-input::placeholder {
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.catalog-search-input:focus {
+    border-color: var(--teal-medio);
+    box-shadow: 0 0 0 3px rgba(122, 79, 247, 0.18);
+}
+
+.filter-btn--ghost {
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    color: var(--texto-principal);
+}
+
+.filter-btn--ghost:hover {
+    border-color: var(--teal-medio);
+    color: var(--texto-principal);
+}
+
 /* Grid de Productos */
 .products-container { background-color: #16161a; padding: 40px; border-radius: 0 0 8px 8px; min-height: 400px; }
 .products-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 30px; max-width: 1400px; }

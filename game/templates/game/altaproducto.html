@@ -41,11 +41,27 @@
                     <label class="field-label">Costo Comercial ($ MXN)</label>
                     <input type="number" name="costo_comercial" class="field-control" placeholder="7999.00" step="0.01" required>
                 </div>
+                <div class="group-field">
+                    <label class="field-label">Descuento (%)</label>
+                    <input type="number" name="descuento" class="field-control" min="0" max="100" value="0" required>
+                </div>
+                <div class="group-field">
+                    <label class="field-label">Inicio del descuento</label>
+                    <input type="datetime-local" name="descuento_inicio" class="field-control">
+                </div>
             </div>
             <div>
                 <div class="group-field">
                     <label class="field-label">Especificaciones Técnicas</label>
                     <textarea name="especificaciones_tecnicas" class="field-control textarea-no-resize" rows="5" placeholder="Detalles de materiales, compatibilidad..."></textarea>
+                </div>
+                <div class="group-field">
+                    <label class="field-label">Fin del descuento</label>
+                    <input type="datetime-local" name="descuento_fin" class="field-control">
+                </div>
+                <div class="group-field">
+                    <label class="field-label">Stock mínimo para aplicar descuento</label>
+                    <input type="number" name="descuento_minimo_unidades" class="field-control" min="0" value="0">
                 </div>
                 <div class="group-field">
                     <label class="field-label">Existencia Inicial Almacén</label>

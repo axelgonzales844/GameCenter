@@ -1,9 +1,12 @@
+from datetime import datetime
+
 from functools import wraps
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
 from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Carrito, ElementoCarrito
 from django.contrib.auth.hashers import check_password, make_password
 from django.db.models import Sum, Count, F
+from django.utils import timezone
 
 
 def admin_required(view_func):
@@ -37,12 +40,15 @@ def _obtener_o_crear_carrito_db(request):
 
 
 @admin_required
-@admin_required
 def altaproducto(request):
     if request.method == 'POST':
         nombre = request.POST.get('nombre', '').strip()
         clasificacion = request.POST.get('clasificacion', 'SIM_AVANZADA')
         costo_comercial = request.POST.get('costo_comercial', 0)
+        descuento = request.POST.get('descuento', 0)
+        descuento_inicio = request.POST.get('descuento_inicio')
+        descuento_fin = request.POST.get('descuento_fin')
+        descuento_minimo_unidades = request.POST.get('descuento_minimo_unidades', 0)
         especificaciones_tecnicas = request.POST.get('especificaciones_tecnicas', '').strip()
         existencia_inicial = request.POST.get('existencia_inicial', 0)
         imagen = request.FILES.get('imagen') 
@@ -51,10 +57,23 @@ def altaproducto(request):
             messages.error(request, 'Por favor completa todos los campos requeridos.')
         else:
             try:
+                descuento_int = int(descuento)
+                if descuento_int < 0 or descuento_int > 100:
+                    raise ValueError('El descuento debe estar entre 0 y 100.')
+
+                descuento_inicio_dt = timezone.make_aware(datetime.fromisoformat(descuento_inicio)) if descuento_inicio else None
+                descuento_fin_dt = timezone.make_aware(datetime.fromisoformat(descuento_fin)) if descuento_fin else None
+                if descuento_inicio_dt and descuento_fin_dt and descuento_fin_dt < descuento_inicio_dt:
+                    raise ValueError('La fecha final del descuento no puede ser anterior a la fecha inicial.')
+
                 Producto.objects.create(
                     nombre=nombre,
                     clasificacion=clasificacion,
                     costo_comercial=costo_comercial,
+                    descuento=descuento_int,
+                    descuento_inicio=descuento_inicio_dt,
+                    descuento_fin=descuento_fin_dt,
+                    descuento_minimo_unidades=int(descuento_minimo_unidades or 0),
                     especificaciones_tecnicas=especificaciones_tecnicas,
                     existencia_inicial=int(existencia_inicial),
                     imagen=imagen 
@@ -77,6 +96,10 @@ def editar_producto(request, id):
         nombre = request.POST.get('nombre', '').strip()
         clasificacion = request.POST.get('clasificacion', 'SIM_AVANZADA')
         costo_comercial = request.POST.get('costo_comercial', 0)
+        descuento = request.POST.get('descuento', 0)
+        descuento_inicio = request.POST.get('descuento_inicio')
+        descuento_fin = request.POST.get('descuento_fin')
+        descuento_minimo_unidades = request.POST.get('descuento_minimo_unidades', 0)
         especificaciones_tecnicas = request.POST.get('especificaciones_tecnicas', '').strip()
         existencia_inicial = request.POST.get('existencia_inicial', 0)
         imagen = request.FILES.get('imagen')
@@ -85,9 +108,22 @@ def editar_producto(request, id):
             messages.error(request, 'Por favor completa todos los campos requeridos.')
         else:
             try:
+                descuento_int = int(descuento)
+                if descuento_int < 0 or descuento_int > 100:
+                    raise ValueError('El descuento debe estar entre 0 y 100.')
+
+                descuento_inicio_dt = timezone.make_aware(datetime.fromisoformat(descuento_inicio)) if descuento_inicio else None
+                descuento_fin_dt = timezone.make_aware(datetime.fromisoformat(descuento_fin)) if descuento_fin else None
+                if descuento_inicio_dt and descuento_fin_dt and descuento_fin_dt < descuento_inicio_dt:
+                    raise ValueError('La fecha final del descuento no puede ser anterior a la fecha inicial.')
+
                 producto.nombre = nombre
                 producto.clasificacion = clasificacion
                 producto.costo_comercial = costo_comercial
+                producto.descuento = descuento_int
+                producto.descuento_inicio = descuento_inicio_dt
+                producto.descuento_fin = descuento_fin_dt
+                producto.descuento_minimo_unidades = int(descuento_minimo_unidades or 0)
                 producto.especificaciones_tecnicas = especificaciones_tecnicas
                 producto.existencia_inicial = int(existencia_inicial)
                 if imagen:
@@ -113,12 +149,21 @@ def eliminar_producto(request, id):
 
 def catalogo(request):
     clasificacion_filter = request.GET.get('clasificacion', None)
-    productos = Producto.objects.filter(clasificacion=clasificacion_filter) if clasificacion_filter else Producto.objects.all()
-    
+    query = request.GET.get('q', '').strip()
+
+    productos = Producto.objects.all()
+
+    if clasificacion_filter:
+        productos = productos.filter(clasificacion=clasificacion_filter)
+
+    if query:
+        productos = productos.filter(nombre__icontains=query)
+
     return render(request, 'game/catalogo.html', {
         'productos': productos,
         'clasificaciones': Producto.CLASIFICACION_CHOICES,
         'clasificacion_actual': clasificacion_filter,
+        'query_actual': query,
     })
 
 
@@ -231,12 +276,13 @@ def carrito(request):
     if carrito_db:
         elementos = ElementoCarrito.objects.filter(carrito=carrito_db).select_related('producto')
         for item in elementos:
-            subtotal_item = float(item.producto.costo_comercial) * item.cantidad
+            precio_unitario = float(item.producto.precio_con_descuento())
+            subtotal_item = precio_unitario * item.cantidad
             subtotal += subtotal_item
             carrito_items.append({
                 'producto_id': item.producto.id,
                 'nombre': item.producto.nombre,
-                'precio': float(item.producto.costo_comercial),
+                'precio': precio_unitario,
                 'cantidad': item.cantidad,
                 'imagen': item.producto.imagen.url if item.producto.imagen else '',
                 'subtotal': subtotal_item
@@ -288,7 +334,7 @@ def agregar_al_carrito(request, producto_id):
         else:
             carrito_session[str_id] = {
                 'nombre': producto.nombre,
-                'precio': float(producto.costo_comercial),
+                'precio': float(producto.precio_con_descuento()),
                 'cantidad': 1,
                 'imagen': producto.imagen.url if producto.imagen else ''
             }
@@ -346,7 +392,7 @@ def procesar_pago(request):
         if carrito_db:
             elementos = ElementoCarrito.objects.filter(carrito=carrito_db).select_related('producto')
             for el in elementos:
-                costo = float(el.producto.costo_comercial)
+                costo = float(el.producto.precio_con_descuento())
                 items_a_comprar.append({
                     'producto_obj': el.producto,
                     'cantidad': el.cantidad,

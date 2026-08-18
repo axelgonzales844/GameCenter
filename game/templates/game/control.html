@@ -23,8 +23,15 @@
                 <!-- Clasificación -->
                 <div class="row-cell-info">{{ prod.clasificacion }}</div>
                 
-                <!-- Costo Comercial (Corregido) -->
-                <div class="row-cell-info"><strong>${{ prod.costo_comercial }} MXN</strong></div>
+                <!-- Costo Comercial y descuento -->
+                <div class="row-cell-info">
+                    {% if prod.descuento %}
+                        <strong>${{ prod.precio_con_descuento|floatformat:2 }} MXN</strong>
+                        <div style="font-size: 11px; color: #fbbf24; margin-top: 2px;">{{ prod.descuento }}% OFF</div>
+                    {% else %}
+                        <strong>${{ prod.costo_comercial|floatformat:2 }} MXN</strong>
+                    {% endif %}
+                </div>
                 
                 <!-- Existencia Inicial con alerta roja si es menor a 3 -->
                 <div class="row-cell-status">
