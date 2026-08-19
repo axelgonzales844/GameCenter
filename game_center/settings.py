@@ -101,19 +101,22 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-# Internationalization
+# Internacionalización (Español)
 # https://docs.djangoproject.com/en/6.0/topics/i18n/
 
-LANGUAGE_CODE = 'es'
+LANGUAGE_CODE = 'es-mx'
 
 TIME_ZONE = 'America/Mexico_City'
 
 USE_I18N = True
-USE_L10N = True
 USE_TZ = True
+USE_L10N = False
+DECIMAL_SEPARATOR = '.'
+USE_THOUSAND_SEPARATOR = False
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Static files (CSS, JavaScript, Images)
+# Archivos Estáticos y Multimedia (CSS, JavaScript, Imágenes)
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
@@ -121,4 +124,14 @@ STATIC_URL = 'static/'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, "media")
+
+# =============================================================================
+# RF4: Configuración de correo para alertas de stock
+# =============================================================================
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'antonycoro77@gmail.com'      # <-- cambia por el correo del equipo
+EMAIL_HOST_PASSWORD = 'xrvftlvzboahkddq' # <-- contraseña de aplicación de Gmail
+DEFAULT_FROM_EMAIL = 'antonycoro77@gmail.com'   # <-- mismo correo

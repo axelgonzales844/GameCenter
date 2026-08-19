@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Producto, Opinión, Usuario, Duda
+from .models import Producto, Opinión, Usuario, Duda, AlertaStock
 
 admin.site.site_header = 'Game Center Admin'
 admin.site.site_title = 'Game Center'
@@ -56,6 +56,13 @@ class UsuarioAdmin(admin.ModelAdmin):
 @admin.register(Duda)
 class DudaAdmin(admin.ModelAdmin):
     list_display = ('nombre', 'correo', 'created')
+
+@admin.register(AlertaStock)
+class AlertaStockAdmin(admin.ModelAdmin):
+    list_display = ('email', 'producto', 'notificado', 'created')
+    list_filter = ('notificado',)
+    search_fields = ('email', 'producto__nombre')
+    readonly_fields = ('created',)
 
 # Registramos el modelo con su configuración
 admin.site.register(Producto, ProductoModelo)

@@ -5,16 +5,7 @@
 <div class="dashboard-container">
     <div class="dashboard-header-flex">
         <div class="dashboard-header-title">Gestión de Reseñas y Opiniones</div>
-        <a href="{% url 'control' %}" class="action-button btn-action-secondary btn-inline">← Volver al Panel</a>
     </div>
-
-    {% if messages %}
-    <div class="messages-container">
-        {% for message in messages %}
-            <div class="message-item success">{{ message }}</div>
-        {% endfor %}
-    </div>
-    {% endif %}
 
     <div class="row-list-container" style="margin-top: 20px;">
         {% for op in opiniones %}
@@ -27,7 +18,7 @@
                 <div>
                     <form action="{% url 'eliminar_opinion' op.id %}" method="POST" onsubmit="return confirm('¿Eliminar esta opinión permanentemente?');">
                         {% csrf_token %}
-                        <button type="submit" class="action-button btn-action-delete btn-inline">Eliminar</button>
+                        <button type="submit" class="action-button btn-action-delete btn-inline" style="background: red; color: white;">Eliminar</button>
                     </form>
                 </div>
             </div>

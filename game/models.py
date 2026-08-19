@@ -1,10 +1,7 @@
 from decimal import Decimal
-
 from django.db import models
 from django.utils import timezone
 
-
-# Create your models here.
 
 class Usuario(models.Model):
     username = models.CharField(max_length=150, unique=True, verbose_name="Nombre de Usuario")
@@ -34,10 +31,10 @@ class Producto(models.Model):
     especificaciones_tecnicas = models.TextField(blank=True, null=True, verbose_name="Especificaciones Técnicas")
     existencia_inicial = models.PositiveIntegerField(default=0, verbose_name="Existencia Inicial Almacén")
     
-    imagen = models.ImageField(null=True, upload_to="fotos", verbose_name="Fotografía")
+    imagen = models.ImageField(null=True, blank=True, upload_to="fotos", verbose_name="Fotografía")
     
     created = models.DateTimeField(auto_now_add=True)
-    updated = models.DateTimeField(auto_now=True)  # Se cambió a auto_now para actualización real
+    updated = models.DateTimeField(auto_now=True)
 
     class Meta:
         verbose_name = "Producto"
@@ -69,9 +66,8 @@ class Orden(models.Model):
         ('PAYPAL', 'PayPal System'),
     ]
     
-    # 🔗 NUEVO CAMPO: Conexión clave con tu modelo Usuario custom
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, null=True, blank=True, related_name='ordenes', verbose_name="Usuario")
-    
+    # SET_NULL evita borrar la orden si se remueve el registro del cliente
+    usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='ordenes', verbose_name="Usuario")
     nombre_completo = models.CharField(max_length=255, verbose_name="Nombre Completo")
     direccion_postal = models.CharField(max_length=255, verbose_name="Dirección Postal")
     estado_ciudad = models.CharField(max_length=150, verbose_name="Estado / Ciudad")
@@ -90,11 +86,14 @@ class Orden(models.Model):
 
 
 class OrdenItem(models.Model):
-    """ Almacena los productos específicos de cada orden """
     orden = models.ForeignKey(Orden, on_delete=models.CASCADE, related_name='items')
     producto = models.ForeignKey(Producto, on_delete=models.PROTECT)
     cantidad = models.PositiveIntegerField(default=1)
     precio_unitario = models.DecimalField(max_digits=10, decimal_places=2)
+
+    @property
+    def subtotal(self):
+        return self.precio_unitario * self.cantidad
 
     def __str__(self):
         return f"{self.cantidad}x {self.producto.nombre} en Orden #{self.orden.id}"
@@ -123,6 +122,7 @@ class Opinión(models.Model):
     def __str__(self):
         return f"{self.user}: {self.message[:40]}"
 
+
 class Direccion(models.Model):
     usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='direcciones', verbose_name="Usuario")
     calle = models.CharField(max_length=255, verbose_name="Calle")
@@ -144,9 +144,14 @@ class Direccion(models.Model):
     def __str__(self):
         return f"{self.calle} #{self.numero_exterior}, {self.colonia} ({self.usuario.username})"
 
+
 class Carrito(models.Model):
     usuario = models.OneToOneField(Usuario, on_delete=models.CASCADE, related_name='carrito')
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total_carrito(self):
+        return sum(item.subtotal for item in self.elementos.all())
 
     def __str__(self):
         return f"Carrito de {self.usuario.username}"
@@ -157,8 +162,13 @@ class ElementoCarrito(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE)
     cantidad = models.PositiveIntegerField(default=1)
 
+    @property
+    def subtotal(self):
+        return self.producto.precio_con_descuento() * self.cantidad
+
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre}"
+
 
 class Duda(models.Model):
     nombre = models.CharField(max_length=150, verbose_name="Nombre")
@@ -173,3 +183,19 @@ class Duda(models.Model):
 
     def __str__(self):
         return f"{self.nombre} - {self.correo}"
+
+class AlertaStock(models.Model):
+    producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='alertas', verbose_name="Producto")
+    email = models.EmailField(verbose_name="Correo del interesado")
+    notificado = models.BooleanField(default=False, verbose_name="Ya fue notificado")
+    created = models.DateTimeField(auto_now_add=True)
+ 
+    class Meta:
+        verbose_name = "Alerta de Stock"
+        verbose_name_plural = "Alertas de Stock"
+        # Un mismo correo no puede registrarse dos veces para el mismo producto
+        unique_together = ('producto', 'email')
+        ordering = ['-created']
+ 
+    def __str__(self):
+        return f"{self.email} → {self.producto.nombre}"

@@ -809,3 +809,127 @@ select.field-control option { background-color: #1e1e24; color: var(--texto-prin
     .empty-state h4 { font-size: 18px; }
     .empty-state p { font-size: 14px; }
 }
+/* ==========================================
+   MENÚ DESPLEGABLE ADMINISTRADOR (PERFECTO)
+   ========================================== */
+.catalog2-nav {
+    display: flex !important;
+    align-items: center !important;
+    gap: 24px !important;
+    overflow: visible !important;
+}
+
+.admin-dropdown-container {
+    position: relative !important;
+    display: inline-block !important;
+}
+
+.admin-dropdown-btn {
+    background: transparent !important;
+    border: none !important;
+    color: inherit !important;
+    font: inherit !important;
+    cursor: pointer !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    outline: none !important;
+}
+
+.admin-dropdown-menu {
+    display: none;
+    position: absolute !important;
+    top: calc(100% + 12px) !important;
+    right: 0 !important; /* Se alinea justo debajo a la derecha */
+    left: auto !important;
+    background-color: #1e1e24 !important;
+    border: 1px solid #32323d !important;
+    border-radius: 8px !important;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+    z-index: 999999 !important;
+    min-width: 190px !important;
+    padding: 8px 0 !important;
+    flex-direction: column !important;
+}
+
+.admin-dropdown-menu.show {
+    display: flex !important;
+}
+
+.admin-dropdown-menu a {
+    color: #e4e4e7 !important;
+    padding: 10px 18px !important;
+    text-decoration: none !important;
+    display: block !important;
+    font-size: 14px !important;
+    white-space: nowrap !important;
+    text-align: left !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+    transition: background 0.2s ease, color 0.2s ease !important;
+}
+
+.admin-dropdown-menu a:hover {
+    background-color: #2a2a35 !important;
+    color: #7a4ff7 !important;
+}
+
+.admin-dropdown-divider {
+    height: 1px !important;
+    background-color: #32323d !important;
+    margin: 6px 0 !important;
+    width: 100% !important;
+}
+/* Color base igual a los demás enlaces del menú */
+.admin-dropdown-btn {
+    position: relative !important;
+    color: #94a3b8 !important; /* Gris suave idéntico a las demás pestañas */
+    transition: color 0.3s ease !important;
+}
+
+/* Estado al pasar el cursor (Hover) */
+.admin-dropdown-btn:hover {
+    color: #7a4ff7 !important; /* Morado brillante al pasar el ratón */
+}
+
+/* Línea morada animada inferior */
+.admin-dropdown-btn::after {
+    content: '' !important;
+    position: absolute !important;
+    bottom: -6px !important;
+    left: 0 !important;
+    width: 0% !important;
+    height: 2px !important;
+    background-color: #7a4ff7 !important;
+    transition: width 0.3s ease !important;
+}
+
+.admin-dropdown-btn:hover::after,
+.admin-dropdown-btn.active::after {
+    width: 100% !important;
+}
+
+/* Asegura que el contenedor centre el contenido */
+.split-art-grid {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 0 !important; /* Quita rellenos extra */
+    overflow: hidden !important;
+}
+
+/* La imagen abarca todo el tamaño del recuadro punteado */
+.split-art-logo {
+    width: 100% !important;
+    height: 100% !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
+    object-fit: contain !important; /* Escala al máximo sin distorsionar */
+    mix-blend-mode: multiply !important;
+}
+.split-art-grid {
+    border: none !important;      /* Quita cualquier borde o línea punteada */
+    outline: none !important;     /* Elimina contornos de enfoque o selección */
+}

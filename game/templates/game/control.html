@@ -7,15 +7,15 @@
 <div class="dashboard-container">
     <div class="dashboard-header-flex">
         <div class="dashboard-header-title">Ítems Activos en el Catálogo</div>
-        <a href="{% url 'altaproducto' %}" class="action-button btn-action-primary btn-inline" style="background-color: var(--cyan-activo); color: #000000; font-weight: 800; padding: 10px 18px; border-radius: 6px; text-transform: uppercase; text-decoration: none;">
+        <a href="{% url 'altaproducto' %}" class="action-button btn-action-primary btn-inline" style="background-color: var(--cyan-activo); font-weight: 800; padding: 10px 18px; border-radius: 6px; text-transform: uppercase; text-decoration: none;">
             + AGREGAR PRODUCTO
         </a>
     </div>
     
     <div class="row-list-container">
         {% for prod in productos %}
-            <!-- Marca el borde en rojo si hay menos de 3 piezas -->
-            <div class="row-item-card" {% if prod.existencia_inicial < 3 %}style="border-left: 4px solid var(--coral-alerta);"{% endif %}>
+            <!-- Marca el borde en rojo si hay 3 o menos piezas -->
+            <div class="row-item-card" {% if prod.existencia_inicial <= 3 %}style="border-left: 4px solid var(--coral-alerta);"{% endif %}>
                 
                 <!-- Nombre del Producto -->
                 <div class="row-cell-primary">{{ prod.nombre }}</div>
@@ -33,14 +33,18 @@
                     {% endif %}
                 </div>
                 
-                <!-- Existencia Inicial con alerta roja si es menor a 3 -->
+                <!-- Existencia Inicial con color por nivel de stock -->
                 <div class="row-cell-status">
-                    {% if prod.existencia_inicial < 3 %}
-                        <span class="status-pill" style="background-color: rgba(239, 68, 68, 0.15); color: var(--coral-alerta); border: 1px solid rgba(239, 68, 68, 0.3);">
-                            ⚠️ {{ prod.existencia_inicial }} Unidades
+                    {% if prod.existencia_inicial <= 3 %}
+                        <span style="color: #ef4444; font-weight: bold;">
+                            {{ prod.existencia_inicial }} Unidades
+                        </span>
+                    {% elif prod.existencia_inicial <= 7 %}
+                        <span style="color: #fbbf24; font-weight: bold;">
+                            {{ prod.existencia_inicial }} Unidades
                         </span>
                     {% else %}
-                        <span class="status-pill">
+                        <span>
                             {{ prod.existencia_inicial }} Unidades
                         </span>
                     {% endif %}
@@ -51,7 +55,7 @@
                     <a href="{% url 'editar_producto' prod.id %}" class="action-button btn-action-primary btn-inline" style="text-decoration: none; text-align: center;">Editar</a>                    
                     <form action="{% url 'eliminar_producto' prod.id %}" method="POST" style="display: inline;" onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
                         {% csrf_token %}
-                        <button type="submit" class="action-button btn-action-delete btn-inline">Remover</button>
+                        <button type="submit" class="action-button btn-action-delete btn-inline" style="background: red; color: white;">Eliminar</button>
                     </form>
                 </div>
 

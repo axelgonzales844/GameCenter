@@ -24,16 +24,25 @@
                     <a href="{% url 'carrito' %}" class="nav-link {% block active_carrito %}{% endblock %}">Carrito</a>
                     <a href="{% url 'opiniones' %}" class="nav-link {% block active_opiniones %}{% endblock %}">Opiniones</a>
 
-                    <!-- 2. PESTAÑAS EXCLUSIVAS DE ADMINISTRADOR -->
+                    <!-- 2. MENÚ DESPLEGABLE DE ADMINISTRADOR -->
                     {% if request.session.is_admin %}
-                        <a href="{% url 'control' %}" class="nav-link {% block active_control %}{% endblock %}">Control</a>
-                        <a href="{% url 'admin_pedidos' %}" class="nav-link {% block active_pedidos %}{% endblock %}">Pedidos</a>
-                        <a href="{% url 'admin_estadisticas' %}" class="nav-link {% block active_estadisticas %}{% endblock %}">Estadísticas</a>
-                        <a href="{% url 'admin_opiniones' %}" class="nav-link {% block active_admin_opiniones %}{% endblock %}">Gestión Reseñas</a>
-                        <a href="{% url 'lista_usuarios' %}" class="nav-link {% block active_usuarios %}{% endblock %}">Usuarios</a>
+                        <div class="admin-dropdown-container" id="adminDropdownContainer">
+                            <button type="button" class="nav-link admin-dropdown-btn {% block active_admin %}{% endblock %}" onclick="toggleAdminMenu(event)">
+                                Admin ▾
+                            </button>
+                            <div class="admin-dropdown-menu" id="adminMenu">
+                                <a href="{% url 'perfil' %}">Mi Perfil</a>
+                                <div class="admin-dropdown-divider"></div>
+                                <a href="{% url 'control' %}">Control de Productos</a>
+                                <a href="{% url 'admin_pedidos' %}">Pedidos</a>
+                                <a href="{% url 'admin_estadisticas' %}">Estadísticas</a>
+                                <a href="{% url 'admin_opiniones' %}">Gestión Reseñas</a>
+                                <a href="{% url 'lista_usuarios' %}">Usuarios</a>
+                            </div>
+                        </div>
                     {% endif %}
 
-                    <!-- 3. PESTAÑA EXCLUSIVA DE CLIENTE -->
+                    <!-- 3. PESTAÑA EXCLUSIVA DE CLIENTE (NO ADMIN) -->
                     {% if request.session.usuario_id and not request.session.is_admin %}
                         <a href="{% url 'perfil' %}" class="nav-link {% block active_perfil %}{% endblock %}">Mi Perfil</a>
                     {% endif %}
@@ -53,5 +62,22 @@
         {% endblock %}
         
     </div>
+
+    <!-- SCRIPT DE INTERACTIVIDAD -->
+    <script>
+        function toggleAdminMenu(event) {
+            event.stopPropagation();
+            const menu = document.getElementById('adminMenu');
+            menu.classList.toggle('show');
+        }
+
+        window.addEventListener('click', function(e) {
+            const container = document.getElementById('adminDropdownContainer');
+            const menu = document.getElementById('adminMenu');
+            if (menu && container && !container.contains(e.target)) {
+                menu.classList.remove('show');
+            }
+        });
+    </script>
 </body>
 </html>

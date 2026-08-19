@@ -5,14 +5,13 @@
 <div class="dashboard-container">
     <div class="dashboard-header-flex">
         <div class="dashboard-header-title">Métricas y Rendimiento de Productos</div>
-        <a href="{% url 'control' %}" class="action-button btn-action-secondary btn-inline">← Volver al Panel</a>
     </div>
 
     <!-- Tarjetas Resumen -->
     <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin: 20px 0;">
         <div style="background: #1e1e24; padding: 20px; border-radius: 8px; text-align: center;">
             <span style="color: #aaa; font-size: 13px;">Ingresos Totales</span>
-            <h2 style="color: #00f0ff; margin: 5px 0;">${{ total_ingresos|floatformat:2 }} MXN</h2>
+            <h2 style="color: #f9fcfc; margin: 5px 0;">${{ total_ingresos|floatformat:2 }} MXN</h2>
         </div>
         <div style="background: #1e1e24; padding: 20px; border-radius: 8px; text-align: center;">
             <span style="color: #aaa; font-size: 13px;">Total Pedidos</span>
@@ -45,7 +44,7 @@
                 <td style="padding: 12px 15px;"><strong>{{ p.nombre }}</strong></td>
                 <td style="padding: 12px 15px;">{{ p.existencia_inicial }}</td>
                 <td style="padding: 12px 15px;">{{ p.unidades_vendidas|default:0 }}</td>
-                <td style="padding: 12px 15px; color: #00f0ff;">${{ p.ingresos_generados|default:0|floatformat:2 }} MXN</td>
+                <td style="padding: 12px 15px; color: #feffff;">${{ p.ingresos_generados|default:0|floatformat:2 }} MXN</td>
             </tr>
             {% endfor %}
         </tbody>

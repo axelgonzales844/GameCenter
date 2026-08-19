@@ -1,6 +1,6 @@
 {% extends "game/encabezado.html" %}
 {% block title %}Editar Producto - Game Center{% endblock %}
-{% load static %}
+{% load static l10n %}
 {% block active_control %}active{% endblock %}
 
 {% block contenido %}
@@ -26,7 +26,7 @@
                 </div>
                 <div class="group-field">
                     <label class="field-label">Costo Comercial ($ MXN)</label>
-                    <input type="number" name="costo_comercial" class="field-control" step="0.01" value="{{ producto.costo_comercial }}" required>
+                    <input type="number" name="costo_comercial" class="field-control" step="0.01" value="{{ producto.costo_comercial|unlocalize }}" required>
                 </div>
                 <div class="group-field">
                     <label class="field-label">Descuento (%)</label>
@@ -71,7 +71,128 @@
                 <button type="submit" class="action-button btn-action-primary btn-submit">Guardar Cambios</button>
             </div>
         </form>
+
+        <!-- RF4: Alertas de stock registradas para este producto -->
+        {% if producto.existencia_inicial == 0 %}
+            <div class="alertas-panel">
+                <div class="alertas-panel__header">
+                    <span class="alertas-panel__title">⚠ Alertas de Stock Registradas</span>
+                    <span class="alertas-panel__badge">{{ producto.alertas.count }}</span>
+                </div>
+
+                {% if producto.alertas.count > 0 %}
+                    <p class="alertas-panel__info">
+                        Al guardar con stock mayor a 0 se notificará automáticamente a estos correos.
+                    </p>
+                    <div class="alertas-panel__list">
+                        {% for alerta in producto.alertas.all %}
+                            <div class="alerta-row">
+                                <span class="alerta-row__email">{{ alerta.email }}</span>
+                                <span class="alerta-row__status {% if alerta.notificado %}notificado{% else %}pendiente{% endif %}">
+                                    {% if alerta.notificado %}✓ Notificado{% else %}⏳ Pendiente{% endif %}
+                                </span>
+                                <span class="alerta-row__date">{{ alerta.created|date:"d/m/Y H:i" }}</span>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="alertas-panel__empty">Ningún cliente ha registrado alerta para este producto.</p>
+                {% endif %}
+            </div>
+        {% endif %}
+
     </div>
+
+<style>
+.alertas-panel {
+    margin-top: 30px;
+    background-color: rgba(239, 68, 68, 0.06);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 10px;
+    padding: 20px 25px;
+}
+
+.alertas-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+}
+
+.alertas-panel__title {
+    font-size: 14px;
+    font-weight: 800;
+    color: #ef4444;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.alertas-panel__badge {
+    background-color: #ef4444;
+    color: white;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 2px 10px;
+    border-radius: 999px;
+}
+
+.alertas-panel__info {
+    font-size: 12px;
+    color: var(--texto-secundario);
+    margin-bottom: 15px;
+}
+
+.alertas-panel__empty {
+    font-size: 13px;
+    color: var(--texto-secundario);
+}
+
+.alertas-panel__list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.alerta-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    background-color: #1e1e24;
+    border: 1px solid #2a2a2f;
+    border-radius: 6px;
+    padding: 10px 15px;
+}
+
+.alerta-row__email {
+    flex: 1;
+    font-size: 13px;
+    color: var(--texto-principal);
+    font-weight: 600;
+}
+
+.alerta-row__status {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 999px;
+    text-transform: uppercase;
+}
+
+.alerta-row__status.pendiente {
+    background-color: rgba(251, 191, 36, 0.15);
+    color: #fbbf24;
+}
+
+.alerta-row__status.notificado {
+    background-color: rgba(16, 185, 129, 0.15);
+    color: #10b981;
+}
+
+.alerta-row__date {
+    font-size: 11px;
+    color: #555562;
+}
+</style>
 
 <script>
     setTimeout(function() {

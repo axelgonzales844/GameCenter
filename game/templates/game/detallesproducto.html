@@ -2,7 +2,6 @@
 {% block title %}Detalles del producto - Game Center{% endblock %}
 {% load static %}
 
-<!-- Activamos la Pestaña del Menú para Esta Página -->
 {% block active_detalles %}active{% endblock %}
 {% block contenido %}
     <div class="showcase-layout">
@@ -38,17 +37,137 @@
                 {{ producto.especificaciones_tecnicas }}
             </p>
 
-            <div style="display: flex; gap: 15px;">
-                <!-- En catalogo.html o detalles.html -->
-                <a href="{% url 'agregar_al_carrito' producto.id %}" style="text-decoration: none; width: 100%;">
-                    <button type="button" class="view-details-btn" style="width: 100%; background-color: #10b981; color: white;">
+            {% if producto.existencia_inicial == 0 %}
+                <!-- RF4: sin stock — formulario de alerta -->
+                <div class="alerta-stock-box" style="margin-bottom: 20px;">
+                    <span class="alerta-stock-label">⚠ Sin stock — Avísame cuando llegue</span>
+                    <form action="{% url 'registrar_alerta_stock' producto.id %}" method="post" class="alerta-stock-form">
+                        {% csrf_token %}
+                        <input type="email" name="email" placeholder="tucorreo@gmail.com" class="alerta-stock-input" required>
+                        <button type="submit" class="alerta-stock-btn">Avisar</button>
+                    </form>
+                </div>
+                <div class="showcase-actions">
+                    <a href="{% url 'catalogo' %}" class="showcase-btn showcase-btn--secondary" style="background: #5b21b6;">Volver</a>
+                </div>
+            {% else %}
+                <!-- Con stock — botones normales -->
+                <div class="showcase-actions">
+                    <a href="{% url 'agregar_al_carrito' producto.id %}" class="showcase-btn showcase-btn--primary">
                         Agregar al Carrito
-                    </button>
-                </a>
-                <a href="{% url 'catalogo' %}" style="text-decoration: none;">
-                    <button class="action-button btn-action-primary" style="width: auto; padding: 12px 20px;">Volver</button>
-                </a>
-            </div>
+                    </a>
+                    <a href="{% url 'catalogo' %}" class="showcase-btn showcase-btn--secondary" style="background: #5b21b6;">
+                        Volver
+                    </a>
+                </div>
+            {% endif %}
         </div>
     </div>
+
+<style>
+.showcase-actions {
+    display: flex;
+    gap: 15px;
+}
+
+.showcase-btn {
+    flex: 1;
+    padding: 13px 20px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    text-decoration: none;
+    text-align: center;
+    cursor: pointer;
+    border: none;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.showcase-btn--primary {
+    background: linear-gradient(135deg, #7c3aed 0%, #5b21b6 100%);
+    color: #ffffff;
+}
+
+.showcase-btn--secondary {
+    background: transparent;
+    color: var(--texto-secundario);
+    border: 1px solid var(--borde-input);
+}
+
+.showcase-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(122, 79, 247, 0.35);
+}
+
+.showcase-btn:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.showcase-btn--secondary:hover {
+    background-color: #222227;
+    color: var(--texto-principal);
+}
+
+/* RF4 */
+.alerta-stock-box {
+    background-color: rgba(239, 68, 68, 0.08);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    border-radius: 8px;
+    padding: 10px 12px;
+    width: 100%;
+}
+
+.alerta-stock-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ef4444;
+    margin-bottom: 8px;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
+.alerta-stock-form {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+}
+
+.alerta-stock-input {
+    flex: 1;
+    padding: 8px 10px;
+    background-color: #16161a;
+    border: 1px solid #3a3a3f;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.alerta-stock-input:focus { border-color: #ef4444; }
+.alerta-stock-input::placeholder { color: #555562; }
+
+.alerta-stock-btn {
+    padding: 8px 12px;
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.2s;
+    white-space: nowrap;
+}
+
+.alerta-stock-btn:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+}
+</style>
+
 {% endblock %}

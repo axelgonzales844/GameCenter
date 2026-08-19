@@ -3,11 +3,12 @@ from datetime import datetime
 from functools import wraps
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Carrito, ElementoCarrito,Duda
+from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Carrito, ElementoCarrito, Duda, AlertaStock
 from django.contrib.auth.hashers import check_password, make_password
 from django.db.models import Sum, Count, F
 from django.utils import timezone
-
+from django.core.mail import send_mail
+from django.conf import settings
 
 
 def admin_required(view_func):
@@ -118,6 +119,9 @@ def editar_producto(request, id):
                 if descuento_inicio_dt and descuento_fin_dt and descuento_fin_dt < descuento_inicio_dt:
                     raise ValueError('La fecha final del descuento no puede ser anterior a la fecha inicial.')
 
+                stock_anterior = producto.existencia_inicial
+                nuevo_stock = int(existencia_inicial)
+
                 producto.nombre = nombre
                 producto.clasificacion = clasificacion
                 producto.costo_comercial = costo_comercial
@@ -126,10 +130,15 @@ def editar_producto(request, id):
                 producto.descuento_fin = descuento_fin_dt
                 producto.descuento_minimo_unidades = int(descuento_minimo_unidades or 0)
                 producto.especificaciones_tecnicas = especificaciones_tecnicas
-                producto.existencia_inicial = int(existencia_inicial)
+                producto.existencia_inicial = nuevo_stock
                 if imagen:
                     producto.imagen = imagen
                 producto.save()
+
+                # RF4: notificar si el stock pasó de 0 a > 0
+                if stock_anterior == 0 and nuevo_stock > 0:
+                    _notificar_alertas_stock(producto)
+
                 messages.success(request, f'Producto "{nombre}" actualizado correctamente.')
                 return redirect('control')
             except Exception as e:
@@ -139,6 +148,7 @@ def editar_producto(request, id):
         'producto': producto,
         'clasificaciones': Producto.CLASIFICACION_CHOICES,
     })
+
 @admin_required
 def eliminar_producto(request, id):
     if request.method == 'POST':
@@ -751,3 +761,66 @@ def contacto(request):
             return render(request, 'game/contacto.html', {'exito': True})
 
     return render(request, 'game/contacto.html')
+
+def _notificar_alertas_stock(producto):
+    """
+    Función interna. Se llama desde editar_producto cuando el stock
+    pasa de 0 a > 0. Envía correo a cada interesado y marca la alerta
+    como notificada para no volver a enviar.
+    """
+    alertas_pendientes = AlertaStock.objects.filter(
+        producto=producto,
+        notificado=False
+    )
+ 
+    for alerta in alertas_pendientes:
+        try:
+            send_mail(
+                subject=f'¡{producto.nombre} ya está disponible en Game Center!',
+                message=(
+                    f'Hola,\n\n'
+                    f'El producto "{producto.nombre}" que tenías en lista de espera '
+                    f'ya cuenta con existencias disponibles.\n\n'
+                    f'Visita el catálogo para comprarlo antes de que se agote:\n'
+                    f'http://127.0.0.1:8000/catalogo/\n\n'
+                    f'— Equipo Game Center'
+                ),
+                from_email=settings.DEFAULT_FROM_EMAIL,
+                recipient_list=[alerta.email],
+                fail_silently=True,
+            )
+            alerta.notificado = True
+            alerta.save()
+        except Exception:
+            pass
+ 
+ 
+def registrar_alerta_stock(request, producto_id):
+    """
+    Vista POST. El cliente escribe su correo en el formulario que aparece
+    cuando un producto tiene Stock=0. Se guarda en AlertaStock.
+    """
+    producto = get_object_or_404(Producto, pk=producto_id)
+ 
+    if request.method == 'POST':
+        email = request.POST.get('email', '').strip()
+ 
+        if not email:
+            messages.error(request, 'Escribe un correo válido.')
+            return redirect('catalogo')
+ 
+        # unique_together evita duplicados; IntegrityError si ya existe
+        try:
+            AlertaStock.objects.create(producto=producto, email=email)
+            messages.success(
+                request,
+                f'Te avisaremos a {email} cuando "{producto.nombre}" vuelva a tener stock.'
+            )
+        except Exception:
+            messages.info(
+                request,
+                f'Tu correo ya está registrado para "{producto.nombre}".'
+            )
+ 
+    return redirect('catalogo')
+ 
