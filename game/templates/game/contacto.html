@@ -1,0 +1,55 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Contacto - Game Center{% endblock %}
+{% load static %}
+
+{% block contenido %}
+
+<div class="dashboard-container">
+
+    <div class="dashboard-header-flex">
+        <h2 class="dashboard-header-title">Contáctanos</h2>
+    </div>
+
+    {% if exito %}
+        <div class="alert alert-success" style="margin-bottom: 24px;">
+            ✅ Tu mensaje fue enviado correctamente. ¡Gracias por contactarnos!
+        </div>
+    {% endif %}
+
+    <div class="window-canvas" style="max-width: 650px;">
+        <div style="padding: 35px;">
+            <p style="color: var(--texto-secundario); font-size: 14px; margin-bottom: 28px;">
+                ¿Tienes alguna duda o comentario? Llena el formulario y te responderemos a la brevedad.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="group-field">
+                    <label class="field-label">Nombre</label>
+                    <input type="text" name="nombre" class="field-control" placeholder="Tu nombre completo" required>
+                </div>
+
+                <div class="group-field">
+                    <label class="field-label">Correo electrónico</label>
+                    <input type="email" name="correo" class="field-control" placeholder="ejemplo@correo.com" required>
+                </div>
+
+                <div class="group-field">
+                    <label class="field-label">Comentario</label>
+                    <textarea name="comentario" class="field-control textarea-no-resize" rows="5" placeholder="Escribe tu duda o comentario..." required></textarea>
+                </div>
+
+                <div style="margin-top: 10px;">
+                    <button type="submit" class="form-submit-btn">Enviar mensaje</button>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+{% include "game/footer.html" %}
+
+{% endblock %}

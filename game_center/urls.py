@@ -38,6 +38,8 @@ urlpatterns = [
     # Estadísticas y Pedidos Admin
     path('admin-estadisticas/', views.admin_estadisticas, name='admin_estadisticas'),
     path('admin-pedidos/', views.admin_pedidos, name='admin_pedidos'),
+    path('sobre-nosotros/', views.sobre_nosotros, name='sobre_nosotros'),
+    path('contacto/', views.contacto, name='contacto'),
     ]
 
 

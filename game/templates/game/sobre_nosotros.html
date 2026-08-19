@@ -1,0 +1,99 @@
+{% extends "game/encabezado.html" %}
+{% block title %}Sobre Nosotros - Game Center{% endblock %}
+{% load static %}
+
+{% block contenido %}
+
+<link rel="stylesheet" href="{% static 'game/css/main.css' %}">
+<style>
+    body { background-color: #121214 !important; }
+    #page-wrapper { background-color: #121214 !important; }
+</style>
+
+<div id="page-wrapper">
+
+    <!-- Banner -->
+    <section id="banner">
+        <h2>LEGA</h2>
+        <p>Transformando ideas en soluciones digitales.</p>
+        <ul class="actions special">
+            <li><a href="{% url 'catalogo' %}" class="button primary">GAME CENTER</a></li>
+        </ul>
+    </section>
+
+    <!-- Main -->
+    <section id="main" class="container">
+
+        <section class="box special">
+            <header class="major">
+                <h2>¿Quienes somos?<br />¿Que ofrecemos?</h2>
+                <p>Somos un equipo de 4 estudiantes de la universidad tecnologica de morelia que busca dar calidad en cada proyecto de desarrollo de software, como lo es uno de ellos "GAME CENTER".</p>
+            </header>
+            <span class="image featured"><img src="{% static 'game/img/1.jpg' %}" alt="" /></span>
+        </section>
+
+        <section class="box special features">
+            <div class="features-row">
+                <section>
+                    <span class="image"><img src="{% static 'game/img/edgar.jpg' %}" alt="Edgar Antonio" class="img-circulo" /></span>
+                    <h3>Edgar Antonio Corona Damian</h3>
+                    <p>Estratega de sistemas y arquitectura técnica, enfocado en transformar ideas complejas en plataformas escalables y de alto rendimiento.</p>
+                </section>
+                <section>
+                    <span class="image"><img src="{% static 'game/img/gabo.jpg' %}" alt="Gabriel Villalobos" class="img-circulo" /></span>
+                    <h3>Gabriel Villalobos Aguirre</h3>
+                    <p>Desarrollador enfocado en la experiencia de usuario y la lógica funcional, creando interfaces intuitivas que conectan con los clientes.</p>
+                </section>
+            </div>
+            <div class="features-row">
+                <section>
+                    <span class="image"><img src="{% static 'game/img/axel.jpg' %}" alt="Axel Emir" class="img-circulo" /></span>
+                    <h3>Axel Emir González Cortes</h3>
+                    <p>Especialista en integración tecnológica y calidad de software, encargado de asegurar la estabilidad y robustez de cada desarrollo.</p>
+                </section>
+                <section>
+                    <span class="image"><img src="{% static 'game/img/luis.jpg' %}" alt="Luis Arturo" class="img-circulo" /></span>
+                    <h3>Luis Arturo González</h3>
+                    <p>Ingeniero enfocado en el rendimiento y la gestión de datos, garantizando que cada sistema opere con velocidad, seguridad y eficiencia.</p>
+                </section>
+            </div>
+        </section>
+
+        <div class="row">
+            <div class="col-6 col-12-narrower">
+                <section class="box special">
+                    <span class="image featured"><img src="{% static 'game/img/LEGA(logo).jpg' %}" alt="" /></span>
+                    <h3>¿Por que LEGA?</h3>
+                    <p>El nombre LEGA define nuestra visión y nuestro origen. Por un lado, nace de la unión de quienes impulsamos cada proyecto: Luis, Edgar, Gabriel y Axel. Por otro lado, inspirados en la idea de construir un legado.</p>
+                </section>
+            </div>
+            <div class="col-6 col-12-narrower">
+                <section class="box special">
+                    <span class="image featured"><img src="{% static 'game/img/general.jpg' %}" alt="" /></span>
+                    <h3>¿Que creamos?</h3>
+                    <p>Hemos desarrollado "GAME CENTER" una aplicacion web sobre venta de productos de gaming, en la cual no solo podras comprar ya que de igual manera podras dar tus calificaciones y puntos de vista sobre cada producto.</p>
+                </section>
+            </div>
+        </div>
+
+    </section>
+
+    <!-- CTA -->
+    <section id="cta">
+        <h2>Sobre Nosotros</h2>
+        <p>Un pequeño equipo con grandes ideas.</p>
+    </section>
+
+</div>
+
+<script src="{% static 'game/js/jquery.min.js' %}"></script>
+<script src="{% static 'game/js/jquery.dropotron.min.js' %}"></script>
+<script src="{% static 'game/js/jquery.scrollex.min.js' %}"></script>
+<script src="{% static 'game/js/browser.min.js' %}"></script>
+<script src="{% static 'game/js/breakpoints.min.js' %}"></script>
+<script src="{% static 'game/js/util.js' %}"></script>
+<script src="{% static 'game/js/main.js' %}"></script>
+
+{% include "game/footer.html" %}
+
+{% endblock %}

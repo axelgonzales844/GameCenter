@@ -2,161 +2,135 @@
 {% block title %}Mi Perfil - Game Center{% endblock %}
 
 {% block contenido %}
-<div style="display: flex; flex-direction: column; gap: 30px; width: 100%; padding: 20px 0;">
-    
+<div class="dashboard-container">
+
     <!-- DATOS DEL PERFIL -->
-    <div style="background-color: #16161a; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px;">
-        <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 10px;">Mi Perfil</h2>
-        <p style="margin: 5px 0;"><strong>Usuario:</strong> @{{ usuario.username }}</p>
-        <p style="margin: 5px 0;"><strong>Correo Electrónico:</strong> {{ usuario.email }}</p>
+    <div class="dashboard-header-flex" style="margin-bottom: 30px;">
+        <div>
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 6px;">Mi Perfil</h2>
+            <p style="margin: 4px 0; color: var(--texto-secundario);"><strong style="color:#fff;">Usuario:</strong> @{{ usuario.username }}</p>
+            <p style="margin: 4px 0; color: var(--texto-secundario);"><strong style="color:#fff;">Correo:</strong> {{ usuario.email }}</p>
+        </div>
     </div>
 
-    <!-- SECCIÓN DE DIRECCIONES DE ENVÍO -->
-    <div style="background-color: #16161a; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
-            <h3 style="font-size: 20px; font-weight: 700; margin: 0;">Mis Direcciones de Envío</h3>
-            <button onclick="toggleFormularioDireccion()" style="background-color: #7a4ff7; color: #fff; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; transition: 0.2s;">
+    <!-- DIRECCIONES DE ENVÍO -->
+    <div style="background-color: var(--crema-bloque); border: 1px solid #2a2a2f; border-radius: 8px; padding: 25px; margin-bottom: 30px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h3 class="dashboard-header-title" style="font-size: 18px; font-weight: 700; margin: 0; padding: 0; border: none;">Mis Direcciones de Envío</h3>
+            <button onclick="toggleFormularioDireccion()" class="action-button btn-action-primary" style="font-size: 13px; padding: 8px 16px;">
                 + Agregar Dirección
             </button>
         </div>
 
-        <!-- FORMULARIO OCULTO / MOSTRABLE -->
-        <div id="form-direccion-container" style="display: none; background-color: #0f0f12; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
-            <h4 style="color: #7a4ff7; margin-top: 0; margin-bottom: 15px; font-size: 16px;">Nueva Dirección de Envío</h4>
+        <!-- FORMULARIO OCULTO -->
+        <div id="form-direccion-container" style="display: none; background-color: #16161a; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px; margin-bottom: 20px;">
+            <h4 style="color: var(--teal-medio); margin-top: 0; margin-bottom: 15px; font-size: 15px;">Nueva Dirección de Envío</h4>
             <form action="{% url 'agregar_direccion' %}" method="POST" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
                 {% csrf_token %}
-                
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Calle *</label>
-                    <input type="text" name="calle" required placeholder="Ej. Av. Reforma" style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">Calle *</label>
+                    <input type="text" name="calle" required placeholder="Ej. Av. Reforma" class="field-control">
                 </div>
-
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Número Exterior *</label>
-                    <input type="text" name="numero_exterior" required placeholder="Ej. 123" style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">Número Exterior *</label>
+                    <input type="text" name="numero_exterior" required placeholder="Ej. 123" class="field-control">
                 </div>
-
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Número Interior (Opcional)</label>
-                    <input type="text" name="numero_interior" placeholder="Ej. Apt 4B" style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">Número Interior</label>
+                    <input type="text" name="numero_interior" placeholder="Ej. Apt 4B" class="field-control">
                 </div>
-
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Colonia / Fraccionamiento *</label>
-                    <input type="text" name="colonia" required placeholder="Ej. Centro" style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">Colonia *</label>
+                    <input type="text" name="colonia" required placeholder="Ej. Centro" class="field-control">
                 </div>
-
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Código Postal *</label>
-                    <input type="text" name="codigo_postal" required placeholder="Ej. 58000" style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">Código Postal *</label>
+                    <input type="text" name="codigo_postal" required placeholder="Ej. 58000" class="field-control">
                 </div>
-
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Ciudad / Municipio *</label>
-                    <input type="text" name="ciudad" required placeholder="Ej. Morelia" style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">Ciudad *</label>
+                    <input type="text" name="ciudad" required placeholder="Ej. Morelia" class="field-control">
                 </div>
-
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">País *</label>
-                    <input type="text" name="pais" value="México" required style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">País *</label>
+                    <input type="text" name="pais" value="México" required class="field-control">
                 </div>
-
                 <div>
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Número Telefónico *</label>
-                    <input type="tel" name="numero_telefonico" required placeholder="Ej. 4431234567" style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    <label class="field-label">Teléfono *</label>
+                    <input type="tel" name="numero_telefonico" required placeholder="Ej. 4431234567" class="field-control">
                 </div>
-
                 <div style="grid-column: 1 / -1;">
-                    <label style="font-size: 12px; color: #aaa; display: block; margin-bottom: 4px;">Referencias de Entrega (Opcional)</label>
-                    <textarea name="referencias" rows="2" placeholder="Ej. Entre calles Zaragoza y Morelos, fachada color azul..." style="width: 100%; padding: 8px; background: #16161a; border: 1px solid #333; color: #fff; border-radius: 4px; resize: vertical;"></textarea>
+                    <label class="field-label">Referencias (Opcional)</label>
+                    <textarea name="referencias" rows="2" placeholder="Entre calles..." class="field-control textarea-no-resize"></textarea>
                 </div>
-
-                <div style="grid-column: 1 / -1; display: flex; gap: 10px; margin-top: 10px;">
-                    <button type="submit" style="background-color: #10b981; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">
-                        Guardar Dirección
-                    </button>
-                    <button type="button" onclick="toggleFormularioDireccion()" style="background-color: #333; color: #fff; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer;">
-                        Cancelar
-                    </button>
+                <div style="grid-column: 1 / -1; display: flex; gap: 10px; margin-top: 5px;">
+                    <button type="submit" class="action-button btn-action-primary">Guardar Dirección</button>
+                    <button type="button" onclick="toggleFormularioDireccion()" class="action-button btn-action-secondary">Cancelar</button>
                 </div>
             </form>
         </div>
 
-        <!-- MOSTRAR DIRECCIONES GUARDADAS -->
+        <!-- DIRECCIONES GUARDADAS -->
         {% if direcciones %}
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 15px;">
                 {% for dir in direcciones %}
-                    <div style="background-color: #0f0f12; border: 1px solid #222226; border-radius: 6px; padding: 15px; color: #ddd; font-size: 13px;">
-                        <p style="margin: 0 0 5px 0; font-weight: bold; color: #fff; font-size: 14px;">
-                            {{ dir.calle }} #{{ dir.numero_exterior }} {% if dir.numero_interior %}(Int. {{ dir.numero_interior }}){% endif %}
-                        </p>
-                        <p style="margin: 2px 0;">Col. {{ dir.colonia }}, C.P. {{ dir.codigo_postal }}</p>
-                        <p style="margin: 2px 0;">{{ dir.ciudad }}, {{ dir.pais }}</p>
-                        <p style="margin: 2px 0; color: #10b981;"> {{ dir.numero_telefonico }}</p>
-                        {% if dir.referencias %}
-                            <p style="margin: 5px 0 0 0; color: #aaa; font-style: italic; font-size: 12px;">"{{ dir.referencias }}"</p>
-                        {% endif %}
-                    </div>
+                <div style="background-color: #16161a; border: 1px solid #2a2a2f; border-radius: 6px; padding: 15px;">
+                    <p style="margin: 0 0 6px 0; font-weight: 700; color: #fff; font-size: 14px;">
+                        {{ dir.calle }} #{{ dir.numero_exterior }} {% if dir.numero_interior %}(Int. {{ dir.numero_interior }}){% endif %}
+                    </p>
+                    <p style="margin: 2px 0; font-size: 13px; color: var(--texto-secundario);">Col. {{ dir.colonia }}, C.P. {{ dir.codigo_postal }}</p>
+                    <p style="margin: 2px 0; font-size: 13px; color: var(--texto-secundario);">{{ dir.ciudad }}, {{ dir.pais }}</p>
+                    <p style="margin: 6px 0 0 0; font-size: 13px; color: #10b981;">{{ dir.numero_telefonico }}</p>
+                    {% if dir.referencias %}
+                        <p style="margin: 6px 0 0 0; color: #666; font-style: italic; font-size: 12px;">"{{ dir.referencias }}"</p>
+                    {% endif %}
+                </div>
                 {% endfor %}
             </div>
         {% else %}
-            <p style="color: var(--texto-secundario); margin: 0; font-size: 14px;">
+            <p style="color: var(--texto-secundario); font-size: 14px; margin: 0;">
                 No tienes direcciones guardadas. Haz clic en <strong>"+ Agregar Dirección"</strong> para registrar una.
             </p>
         {% endif %}
     </div>
 
     <!-- HISTORIAL DE PEDIDOS -->
-    <div>
-        <h3 style="font-size: 20px; font-weight: 700; margin-bottom: 15px;">Mis Pedidos Realizados</h3>
+    <div style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--teal-medio);">Mis Pedidos Realizados</h3>
 
         {% if ordenes %}
             <div style="display: flex; flex-direction: column; gap: 20px;">
                 {% for orden in ordenes %}
-                <div style="background-color: #16161a; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px;">
-                    
-                    <!-- ENCABEZADO DE LA ORDEN -->
+                <div style="background-color: var(--crema-bloque); border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px;">
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #2a2a2f; padding-bottom: 12px; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
                         <div>
-                            <span style="font-size: 18px; font-weight: bold; color: #7a4ff7;">Orden #{{ orden.id }}</span>
-                            <span style="font-size: 12px; color: var(--texto-secundario); margin-left: 10px;">Fecha: {{ orden.created|date:"d M, Y - H:i" }}</span>
+                            <span style="font-size: 16px; font-weight: bold; color: var(--teal-medio);">Orden #{{ orden.id }}</span>
+                            <span style="font-size: 12px; color: var(--texto-secundario); margin-left: 10px;">{{ orden.created|date:"d M, Y - H:i" }}</span>
                         </div>
-                        <div>
-                            <span style="font-size: 20px; font-weight: 800; color: #fff;">${{ orden.total_neto }} MXN</span>
+                        <span style="font-size: 18px; font-weight: 800; color: #fff;">${{ orden.total_neto }} MXN</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                        <div style="background-color: #16161a; padding: 12px 15px; border-radius: 6px; border: 1px solid #2a2a2f;">
+                            <div style="font-size: 11px; font-weight: bold; color: var(--teal-medio); text-transform: uppercase; margin-bottom: 6px;">Dirección de Envío</div>
+                            <p style="margin: 2px 0; font-weight: 600; color: #fff; font-size: 13px;">{{ orden.nombre_completo }}</p>
+                            <p style="margin: 2px 0; color: var(--texto-secundario); font-size: 12px;">{{ orden.direccion_postal }}</p>
+                            <p style="margin: 2px 0; color: var(--texto-secundario); font-size: 12px;">{{ orden.estado_ciudad }} — C.P. {{ orden.codigo_postal }}</p>
+                        </div>
+                        <div style="background-color: #16161a; padding: 12px 15px; border-radius: 6px; border: 1px solid #2a2a2f; display: flex; flex-direction: column; justify-content: center;">
+                            <div style="font-size: 11px; font-weight: bold; color: var(--teal-medio); text-transform: uppercase; margin-bottom: 6px;">Método de Pago</div>
+                            <p style="margin: 0; color: #fff; font-size: 14px; font-weight: 600;">{{ orden.get_metodo_pago_display }}</p>
                         </div>
                     </div>
 
-                    <!-- DIRECCIÓN DE ENVÍO Y MÉTODO DE PAGO -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; margin-bottom: 15px;">
-                        
-                        <!-- Bloque Dirección de Envío -->
-                        <div style="background-color: #0f0f12; padding: 12px 15px; border-radius: 6px; border: 1px solid #222226;">
-                            <div style="font-size: 12px; font-weight: bold; color: #7a4ff7; text-transform: uppercase; margin-bottom: 6px;">Dirección de Envío</div>
-                            <p style="margin: 3px 0; font-weight: 600; color: #fff; font-size: 14px;">{{ orden.nombre_completo }}</p>
-                            <p style="margin: 3px 0; color: var(--texto-secundario); font-size: 13px;">{{ orden.direccion_postal }}</p>
-                            <p style="margin: 3px 0; color: var(--texto-secundario); font-size: 13px;">{{ orden.estado_ciudad }} — C.P. {{ orden.codigo_postal }}</p>
-                        </div>
-
-                        <!-- Bloque Método de Pago -->
-                        <div style="background-color: #0f0f12; padding: 12px 15px; border-radius: 6px; border: 1px solid #222226; display: flex; flex-direction: column; justify-content: center;">
-                            <div style="font-size: 12px; font-weight: bold; color: #7a4ff7; text-transform: uppercase; margin-bottom: 6px;">Método de Pago</div>
-                            <p style="margin: 0; color: #fff; font-size: 15px; font-weight: 600;">{{ orden.get_metodo_pago_display }}</p>
-                        </div>
-
-                    </div>
-
-                    <!-- PRODUCTOS COMPRADOS -->
                     {% if orden.items.all %}
-                    <div style="background-color: #0f0f12; padding: 12px 15px; border-radius: 6px; border: 1px solid #222226;">
-                        <div style="font-size: 12px; font-weight: bold; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: 8px;">Productos Comprados</div>
+                    <div style="background-color: #16161a; padding: 12px 15px; border-radius: 6px; border: 1px solid #2a2a2f;">
+                        <div style="font-size: 11px; font-weight: bold; color: var(--texto-secundario); text-transform: uppercase; margin-bottom: 8px;">Productos Comprados</div>
                         <ul style="list-style: none; padding: 0; margin: 0;">
                             {% for item in orden.items.all %}
                             <li style="display: flex; justify-content: space-between; font-size: 13px; color: #ccc; padding: 4px 0; border-bottom: 1px solid #1a1a20;">
-                                <span>
-                                    {{ item.cantidad }}x 
-                                    <a href="{% url 'detallesproducto' item.producto.id %}" style="color: #7a4ff7; font-weight: 600; text-decoration: none;">
-                                        {{ item.producto.nombre }}
-                                    </a>
+                                <span>{{ item.cantidad }}x 
+                                    <a href="{% url 'detallesproducto' item.producto.id %}" style="color: var(--teal-medio); font-weight: 600; text-decoration: none;">{{ item.producto.nombre }}</a>
                                 </span>
                                 <span>${{ item.precio_unitario }} MXN c/u</span>
                             </li>
@@ -164,40 +138,41 @@
                         </ul>
                     </div>
                     {% endif %}
-
                 </div>
                 {% endfor %}
             </div>
         {% else %}
-            <div class="empty-message" style="text-align: center; padding: 30px; background: #16161a; border-radius: 8px;">
+            <div class="empty-message" style="text-align: center; padding: 30px; background: var(--crema-bloque); border-radius: 8px; border: 1px solid #2a2a2f;">
                 <p style="color: var(--texto-secundario);">Aún no has realizado ninguna compra.</p>
                 <a href="{% url 'catalogo' %}" style="color: var(--teal-medio); font-weight: bold; text-decoration: none;">Ir al Catálogo →</a>
             </div>
         {% endif %}
     </div>
-    <div class="profile-section" style="margin-top: 30px;">
-    <h3>Mis Opiniones Publicadas</h3>
-    {% for op in opiniones %}
-        <div style="background: rgba(255, 255, 255, 0.05); padding: 15px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid var(--cyan-activo, #00f0ff);">
-            <p style="margin: 0; font-style: italic;">"{{ op.message }}"</p>
-            <small style="color: #888;">Estado: {{ op.status }}</small>
-        </div>
-    {% empty %}
-        <p style="color: #aaa;">Aún no has publicado ninguna opinión.</p>
-    {% endfor %}
-</div>
+
+    <!-- MIS OPINIONES -->
+    <div style="margin-bottom: 30px;">
+        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid var(--teal-medio);">Mis Opiniones Publicadas</h3>
+        {% for op in opiniones %}
+            <div style="background: var(--crema-bloque); padding: 15px 20px; border-radius: 6px; margin-bottom: 10px; border-left: 3px solid var(--teal-medio);">
+                <p style="margin: 0 0 6px 0; font-style: italic; color: #ddd;">"{{ op.message }}"</p>
+                <small style="color: var(--texto-secundario);">Estado: 
+                    <span style="color: {% if op.status == 'APROBADO' %}#10b981{% elif op.status == 'RECHAZADO' %}#ef4444{% else %}#f59e0b{% endif %}; font-weight: 700;">{{ op.status }}</span>
+                </small>
+            </div>
+        {% empty %}
+            <p style="color: var(--texto-secundario); font-size: 14px;">Aún no has publicado ninguna opinión.</p>
+        {% endfor %}
+    </div>
 
 </div>
-
 
 <script>
     function toggleFormularioDireccion() {
         const form = document.getElementById('form-direccion-container');
-        if (form.style.display === 'none' || form.style.display === '') {
-            form.style.display = 'block';
-        } else {
-            form.style.display = 'none';
-        }
+        form.style.display = (form.style.display === 'none' || form.style.display === '') ? 'block' : 'none';
     }
 </script>
+
+{% include "game/footer.html" %}
+
 {% endblock %}

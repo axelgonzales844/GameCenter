@@ -400,7 +400,6 @@ select.field-control option { background-color: #1e1e24; color: var(--texto-prin
 .catalog-toolbar__row {
     display: flex;
     align-items: center;
-    justify-content: space-between;
     gap: 18px;
     flex-wrap: wrap;
 }
@@ -417,7 +416,7 @@ select.field-control option { background-color: #1e1e24; color: var(--texto-prin
     align-items: center;
     gap: 10px;
     flex-wrap: wrap;
-    margin-left: auto;
+    margin-left: 0;
 }
 
 .catalog-search-input {
@@ -729,6 +728,38 @@ select.field-control option { background-color: #1e1e24; color: var(--texto-prin
 /* ==========================================================================
    8. DISEÑO RESPONSIVO (MEDIA QUERIES)
    ========================================================================== */
+
+/* --- Buscador en fila separada: catalogo.html --- */
+.catalog-toolbar__search-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(122, 79, 247, 0.2);
+}
+
+.catalog-toolbar__search-row .catalog-search-form {
+    width: 100%;
+}
+
+.catalog-toolbar__search-row .catalog-search-input {
+    width: min(400px, 100%);
+}
+
+/* --- Animación botón Buscar --- */
+@keyframes pulse-search {
+    0%   { box-shadow: 0 0 0 0 rgba(122, 79, 247, 0.5); }
+    70%  { box-shadow: 0 0 0 8px rgba(122, 79, 247, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(122, 79, 247, 0); }
+}
+
+.search-btn-anim {
+    animation: pulse-search 2s infinite;
+}
+
+.search-btn-anim:hover {
+    animation: none;
+    transform: translateY(-2px);
+}
+
 @media (max-width: 1024px) {
     .opinions-container { padding: 30px; }
     .opinions-display-grid { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }

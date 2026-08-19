@@ -3,10 +3,11 @@ from datetime import datetime
 from functools import wraps
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
-from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Carrito, ElementoCarrito
+from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Carrito, ElementoCarrito,Duda
 from django.contrib.auth.hashers import check_password, make_password
 from django.db.models import Sum, Count, F
 from django.utils import timezone
+
 
 
 def admin_required(view_func):
@@ -440,6 +441,113 @@ def procesar_pago(request):
                 estado_ciudad = "Digital"
                 codigo_postal = "00000"
         else:
+            calle = request.POST.get('calle', '')
+            numero_exterior = request.POST.get('numero_exterior', '')
+            colonia = request.POST.get('colonia', '')
+            ciudad = request.POST.get('ciudad', '')
+            codigo_postal = request.POST.get('codigo_postal', '00000')
+            if calle:
+                direccion_postal = f"{calle} #{numero_exterior}, Col. {colonia}"
+                estado_ciudad = ciudad
+            else:
+                direccion_postal = "Entrega Digital / Descarga"
+                estado_ciudad = "Digital"
+                codigo_postal = "00000"
+
+        nueva_orden = Orden.objects.create(
+            usuario=usuario_obj,
+            nombre_completo=usuario_obj.username,
+            direccion_postal=direccion_postal,
+            estado_ciudad=estado_ciudad,
+            codigo_postal=codigo_postal,
+            metodo_pago=metodo_pago,
+            total_neto=subtotal
+        )
+
+        for item in items_a_comprar:
+            prod = item['producto_obj']
+            cant = item['cantidad']
+            if prod.existencia_inicial >= cant:
+                prod.existencia_inicial -= cant
+            else:
+                prod.existencia_inicial = 0
+            prod.save()
+
+            OrdenItem.objects.create(
+                orden=nueva_orden,
+                producto=prod,
+                cantidad=cant,
+                precio_unitario=item['precio']
+            )
+
+        if carrito_db:
+            ElementoCarrito.objects.filter(carrito=carrito_db).delete()
+        request.session['carrito'] = {}
+        request.session.modified = True
+
+        messages.success(request, f'¡Pago aprobado con éxito! Tu Orden #{nueva_orden.id} fue registrada.')
+        return redirect('carrito')
+
+    return redirect('carrito')
+    if request.method == 'POST':
+        usuario_id = request.session.get('usuario_id')
+        usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
+        carrito_db = _obtener_o_crear_carrito_db(request)
+
+        items_a_comprar = []
+        subtotal = 0
+
+        if carrito_db:
+            elementos = ElementoCarrito.objects.filter(carrito=carrito_db).select_related('producto')
+            for el in elementos:
+                costo = float(el.producto.precio_con_descuento())
+                items_a_comprar.append({
+                    'producto_obj': el.producto,
+                    'cantidad': el.cantidad,
+                    'precio': costo
+                })
+                subtotal += costo * el.cantidad
+        else:
+            carrito_session = request.session.get('carrito', {})
+            for prod_id, item in carrito_session.items():
+                p_obj = Producto.objects.filter(id=prod_id).first()
+                if p_obj:
+                    costo = float(item['precio'])
+                    cant = int(item['cantidad'])
+                    items_a_comprar.append({
+                        'producto_obj': p_obj,
+                        'cantidad': cant,
+                        'precio': costo
+                    })
+                    subtotal += costo * cant
+
+        if not items_a_comprar:
+            messages.error(request, 'Tu carrito está vacío.')
+            return redirect('carrito')
+
+        metodo_pago = request.POST.get('metodo_pago', 'TARJETA')
+        if metodo_pago == 'TARJETA':
+            num_tarjeta = request.POST.get('numero_tarjeta', '').replace(' ', '')
+            cvv = request.POST.get('cvv', '')
+            if len(num_tarjeta) != 16 or not num_tarjeta.isdigit():
+                messages.error(request, 'Error en el pago: Ingresa un número de tarjeta válido de 16 dígitos.')
+                return redirect('carrito')
+            if len(cvv) < 3 or not cvv.isdigit():
+                messages.error(request, 'Error en el pago: El código CVV es incorrecto.')
+                return redirect('carrito')
+
+        direccion_id = request.POST.get('direccion_id')
+        if direccion_id:
+            dir_obj = Direccion.objects.filter(id=direccion_id, usuario=usuario_obj).first()
+            if dir_obj:
+                direccion_postal = f"{dir_obj.calle} #{dir_obj.numero_exterior}, Col. {dir_obj.colonia}"
+                estado_ciudad = dir_obj.ciudad
+                codigo_postal = dir_obj.codigo_postal
+            else:
+                direccion_postal = "Entrega Digital / Descarga"
+                estado_ciudad = "Digital"
+                codigo_postal = "00000"
+        else:
             direccion_postal = "Entrega Digital / Descarga"
             estado_ciudad = "Digital"
             codigo_postal = "00000"
@@ -624,3 +732,22 @@ def admin_estadisticas(request):
 def admin_pedidos(request):
     pedidos = Orden.objects.all().order_by('-created')
     return render(request, 'game/admin_pedidos.html', {'pedidos': pedidos})
+
+def sobre_nosotros(request):
+    return render(request, 'game/sobre_nosotros.html')
+
+def contacto(request):
+    if request.method == 'POST':
+        nombre = request.POST.get('nombre')
+        correo = request.POST.get('correo')
+        comentario = request.POST.get('comentario')
+
+        if nombre and correo and comentario:
+            Duda.objects.create(
+                nombre=nombre,
+                correo=correo,
+                comentario=comentario
+            )
+            return render(request, 'game/contacto.html', {'exito': True})
+
+    return render(request, 'game/contacto.html')

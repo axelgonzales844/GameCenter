@@ -3,7 +3,6 @@
 {% load static %}
 
 {% block contenido %}
-<!-- FORMULARIO DIRIGIDO A PROCESAR_PAGO -->
 <form method="POST" action="{% url 'procesar_pago' %}" class="checkout-layout">
     {% csrf_token %}
 
@@ -44,22 +43,47 @@
         </div>
 
         {% if carrito_items %}
-        <!-- PANEL DE DIRECCIÓN Y PAGO -->
         <div style="margin-top: 30px; background: #16161a; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px;">
             
-            <!-- Selección de Dirección -->
+            <!-- Dirección de Envío -->
             <h4 style="font-size: 16px; font-weight: bold; margin-top: 0; color: #fff;">Dirección de Envío</h4>
+
             {% if direcciones %}
+                <!-- Tiene direcciones guardadas -->
                 <select name="direccion_id" style="width: 100%; padding: 10px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px; margin-bottom: 20px;">
                     {% for dir in direcciones %}
                         <option value="{{ dir.id }}">{{ dir.calle }} #{{ dir.numero_exterior }} - Col. {{ dir.colonia }}, {{ dir.ciudad }}</option>
                     {% endfor %}
                 </select>
             {% else %}
-                <p style="font-size: 13px; color: #aaa; margin-bottom: 20px;">No tienes direcciones guardadas. Se procesará como entrega digital.</p>
+                <!-- No tiene direcciones: formulario inline -->
+                <p style="font-size: 13px; color: #f59e0b; margin-bottom: 16px;">No tienes direcciones guardadas. Captura una para tu envío:</p>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 20px;">
+                    <div>
+                        <label style="font-size: 11px; color: #aaa; display: block; margin-bottom: 4px;">Calle *</label>
+                        <input type="text" name="calle" required placeholder="Ej. Av. Reforma" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: #aaa; display: block; margin-bottom: 4px;">Número Exterior *</label>
+                        <input type="text" name="numero_exterior" required placeholder="Ej. 123" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: #aaa; display: block; margin-bottom: 4px;">Colonia *</label>
+                        <input type="text" name="colonia" required placeholder="Ej. Centro" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: #aaa; display: block; margin-bottom: 4px;">Ciudad *</label>
+                        <input type="text" name="ciudad" required placeholder="Ej. Morelia" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    </div>
+                    <div>
+                        <label style="font-size: 11px; color: #aaa; display: block; margin-bottom: 4px;">Código Postal *</label>
+                        <input type="text" name="codigo_postal" required placeholder="Ej. 58000" style="width: 100%; padding: 8px; background: #0f0f12; border: 1px solid #333; color: #fff; border-radius: 4px;">
+                    </div>
+                </div>
             {% endif %}
 
-            <!-- Campos Simulados de Tarjeta -->
+            <!-- Método de Pago -->
             <h4 style="font-size: 16px; font-weight: bold; color: #fff; margin-top: 15px; margin-bottom: 10px;">Procesar Pago</h4>
             
             <div style="display: flex; gap: 20px; margin-bottom: 15px;">
@@ -95,7 +119,7 @@
         </div>
     </div>
 
-    <!-- RESUMEN DE COMPRA -->
+    <!-- RESUMEN -->
     <div class="checkout-side-summary">
         <h3 style="font-size: 16px; font-weight: 800; text-transform: uppercase;">Resumen</h3>
 
@@ -120,4 +144,7 @@
         {% endif %}
     </div>
 </form>
+
+{% include "game/footer.html" %}
+
 {% endblock %}

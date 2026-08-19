@@ -3,6 +3,7 @@ from decimal import Decimal
 from django.db import models
 from django.utils import timezone
 
+
 # Create your models here.
 
 class Usuario(models.Model):
@@ -158,3 +159,17 @@ class ElementoCarrito(models.Model):
 
     def __str__(self):
         return f"{self.cantidad} x {self.producto.nombre}"
+
+class Duda(models.Model):
+    nombre = models.CharField(max_length=150, verbose_name="Nombre")
+    correo = models.EmailField(verbose_name="Correo")
+    comentario = models.TextField(verbose_name="Comentario")
+    created = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = "Duda"
+        verbose_name_plural = "Dudas"
+        ordering = ['-created']
+
+    def __str__(self):
+        return f"{self.nombre} - {self.correo}"

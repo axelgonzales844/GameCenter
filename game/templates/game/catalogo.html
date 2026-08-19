@@ -2,13 +2,13 @@
 {% block title %}Catálogo - Game Center{% endblock %}
 {% load static %}
 
-<!-- Activamos la pestaña del menú para esta página -->
 {% block active_catalogo %}active{% endblock %}
 
-
 {% block contenido %}
-<!-- BUSCADOR: bloque del buscador y filtros del catálogo -->
+
+<!-- BUSCADOR Y FILTROS -->
 <div class="catalog-toolbar">
+    <!-- Fila 1: Filtros -->
     <div class="catalog-toolbar__row">
         <div class="catalog-toolbar__group catalog-toolbar__filters">
             <span class="filter-label">Filtrar por:</span>
@@ -21,13 +21,16 @@
                 </a>
             {% endfor %}
         </div>
+    </div>
 
+    <!-- Fila 2: Buscador -->
+    <div class="catalog-toolbar__row catalog-toolbar__search-row">
         <form method="get" action="{% url 'catalogo' %}" class="catalog-search-form">
             {% if clasificacion_actual %}
                 <input type="hidden" name="clasificacion" value="{{ clasificacion_actual }}">
             {% endif %}
             <input type="search" name="q" value="{{ query_actual }}" placeholder="Buscar producto..." class="catalog-search-input" aria-label="Buscar productos">
-            <button type="submit" class="filter-btn active">Buscar</button>
+            <button type="submit" class="filter-btn active search-btn-anim">Buscar</button>
             {% if query_actual %}
                 <a href="{% if clasificacion_actual %}?clasificacion={{ clasificacion_actual }}{% else %}{% url 'catalogo' %}{% endif %}" class="filter-btn filter-btn--ghost">Limpiar</a>
             {% endif %}
@@ -79,15 +82,12 @@
                             {% endif %}
                         </div>
 
-                        <!-- Botón Ver Detalles (Redirecciona mediante formulario GET) -->
                         <form action="{% url 'detallesproducto' producto.id %}" method="get" style="display: inline;">
                             <button type="submit" class="view-details-btn" style="width: 100%;">Ver Detalles</button>
                         </form>                             
                         
                         <br>
 
-                        <!-- Botón Agregar al Carrito (Listo para tu lógica) -->
-                        <!-- En catalogo.html o detalles.html -->
                         <a href="{% url 'agregar_al_carrito' producto.id %}" style="text-decoration: none; width: 100%;">
                             <button type="button" class="view-details-btn" style="width: 100%; background-color: #10b981; color: white;">
                                 Agregar al Carrito
@@ -108,5 +108,40 @@
     {% endif %}
 </div>
 
+{% include "game/footer.html" %}
+
+<style>
+/* Buscador en fila separada */
+.catalog-toolbar__search-row {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(122, 79, 247, 0.2);
+}
+
+.catalog-toolbar__search-row .catalog-search-form {
+    margin-left: 0;
+    width: 100%;
+}
+
+.catalog-toolbar__search-row .catalog-search-input {
+    width: min(400px, 100%);
+}
+
+/* Animación botón Buscar */
+@keyframes pulse-search {
+    0%   { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0.5); }
+    70%  { box-shadow: 0 0 0 8px rgba(20, 184, 166, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(20, 184, 166, 0); }
+}
+
+.search-btn-anim {
+    animation: pulse-search 2s infinite;
+}
+
+.search-btn-anim:hover {
+    animation: none;
+    transform: translateY(-2px);
+}
+</style>
 
 {% endblock %}

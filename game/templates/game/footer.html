@@ -1,0 +1,94 @@
+<footer class="site-footer">
+    <div class="footer-inner">
+
+        <div class="footer-brand">
+            <span class="footer-logo">GAME<span>CENTER</span></span>
+            <p class="footer-tagline">Tu tienda de hardware gaming de confianza.</p>
+        </div>
+
+        <nav class="footer-nav">
+            <h4 class="footer-nav-title">Navegación</h4>
+            <a href="{% url 'catalogo' %}">Catálogo</a>
+            <a href="{% url 'carrito' %}">Carrito</a>
+            <a href="{% url 'opiniones' %}">Opiniones</a>
+            <a href="{% url 'sobre_nosotros' %}">Sobre Nosotros</a>
+            <a href="{% url 'contacto' %}">Contacto</a>
+            {% if not request.session.usuario_id %}
+                <a href="{% url 'login' %}">Login</a>
+            {% endif %}
+        </nav>
+
+        <div class="footer-credits">
+            <h4 class="footer-nav-title">Proyecto Escolar</h4>
+            <p>Desarrollo Web — 2025</p>
+            <p>Universidad Tecnológica de Morelia</p>
+        </div>
+
+    </div>
+
+    <div class="footer-bottom">
+        <p>&copy; 2025 GameCenter. Todos los derechos reservados.</p>
+    </div>
+</footer>
+
+<style>
+.site-footer {
+    background: linear-gradient(135deg, #1e1e24 0%, #16161a 100%);
+    border-top: 1px solid #2a2a2f;
+    margin-top: 60px;
+}
+.footer-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 40px 30px;
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 40px;
+}
+.footer-brand .footer-logo {
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    color: #ffffff;
+}
+.footer-brand .footer-logo span { color: var(--teal-medio); }
+.footer-tagline {
+    margin-top: 10px;
+    font-size: 13px;
+    color: var(--texto-secundario);
+    line-height: 1.6;
+}
+.footer-nav-title {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: var(--teal-medio);
+    margin-bottom: 14px;
+}
+.footer-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.footer-nav a {
+    color: var(--texto-secundario);
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    transition: color 0.2s;
+}
+.footer-nav a:hover { color: var(--texto-principal); }
+.footer-credits p {
+    font-size: 13px;
+    color: var(--texto-secundario);
+    line-height: 1.8;
+}
+.footer-bottom {
+    border-top: 1px solid #2a2a2f;
+    padding: 16px 30px;
+    text-align: center;
+    font-size: 12px;
+    color: #555562;
+}
+</style>
