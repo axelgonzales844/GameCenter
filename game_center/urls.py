@@ -32,9 +32,17 @@ urlpatterns = [
     path('editar-producto/<int:id>/', views.editar_producto, name='editar_producto'),
     path('eliminar-producto/<int:id>/', views.eliminar_producto, name='eliminar_producto'),
     path('admin-usuarios/', views.lista_usuarios, name='lista_usuarios'),
+
     # Administración de Opiniones
     path('admin-opiniones/', views.admin_opiniones, name='admin_opiniones'),
     path('eliminar-opinion/<int:id>/', views.eliminar_opinion, name='eliminar_opinion'),
+    path('aprobar-opinion/<int:id>/', views.aprobar_opinion, name='aprobar_opinion'),
+    path('rechazar-opinion/<int:id>/', views.rechazar_opinion, name='rechazar_opinion'),
+
+    # Administración de Dudas
+    path('admin-dudas/', views.admin_dudas, name='admin_dudas'),
+    path('eliminar-duda/<int:id>/', views.eliminar_duda, name='eliminar_duda'),
+
     # Estadísticas y Pedidos Admin
     path('admin-estadisticas/', views.admin_estadisticas, name='admin_estadisticas'),
     path('admin-pedidos/', views.admin_pedidos, name='admin_pedidos'),
@@ -45,6 +53,5 @@ urlpatterns = [
     path('alerta-stock/<int:producto_id>/', views.registrar_alerta_stock, name='registrar_alerta_stock'),
 ]
 
-# Configuración para servir archivos multimedia (imágenes de productos) en desarrollo
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

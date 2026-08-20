@@ -30,9 +30,9 @@ class Producto(models.Model):
     descuento_minimo_unidades = models.PositiveIntegerField(default=0, verbose_name="Stock mínimo para descuento")
     especificaciones_tecnicas = models.TextField(blank=True, null=True, verbose_name="Especificaciones Técnicas")
     existencia_inicial = models.PositiveIntegerField(default=0, verbose_name="Existencia Inicial Almacén")
-    
+
     imagen = models.ImageField(null=True, blank=True, upload_to="fotos", verbose_name="Fotografía")
-    
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -65,7 +65,7 @@ class Orden(models.Model):
         ('TARJETA', 'Tarjeta de Crédito / Débito'),
         ('PAYPAL', 'PayPal System'),
     ]
-    
+
     # SET_NULL evita borrar la orden si se remueve el registro del cliente
     usuario = models.ForeignKey(Usuario, on_delete=models.SET_NULL, null=True, blank=True, related_name='ordenes', verbose_name="Usuario")
     nombre_completo = models.CharField(max_length=255, verbose_name="Nombre Completo")
@@ -74,7 +74,7 @@ class Orden(models.Model):
     codigo_postal = models.CharField(max_length=10, verbose_name="Código Postal")
     metodo_pago = models.CharField(max_length=20, choices=METODOS_PAGO, default='TARJETA')
     total_neto = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Total Neto a Pagar")
-    created = models.DateTimeField(auto_now_add=True) 
+    created = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         verbose_name = "Orden"
@@ -107,10 +107,10 @@ class Opinión(models.Model):
     ]
     user = models.CharField(max_length=150, verbose_name="Usuario")
     message = models.TextField(verbose_name="Mensaje")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='APROBADO')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDIENTE')  # ← cambiado
     response = models.TextField(blank=True, null=True, verbose_name="Respuesta")
     is_hidden = models.BooleanField(default=False)
-    
+
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -184,18 +184,18 @@ class Duda(models.Model):
     def __str__(self):
         return f"{self.nombre} - {self.correo}"
 
+
 class AlertaStock(models.Model):
     producto = models.ForeignKey(Producto, on_delete=models.CASCADE, related_name='alertas', verbose_name="Producto")
     email = models.EmailField(verbose_name="Correo del interesado")
     notificado = models.BooleanField(default=False, verbose_name="Ya fue notificado")
     created = models.DateTimeField(auto_now_add=True)
- 
+
     class Meta:
         verbose_name = "Alerta de Stock"
         verbose_name_plural = "Alertas de Stock"
-        # Un mismo correo no puede registrarse dos veces para el mismo producto
         unique_together = ('producto', 'email')
         ordering = ['-created']
- 
+
     def __str__(self):
         return f"{self.email} → {self.producto.nombre}"

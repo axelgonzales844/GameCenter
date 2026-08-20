@@ -53,8 +53,8 @@ def altaproducto(request):
         descuento_minimo_unidades = request.POST.get('descuento_minimo_unidades', 0)
         especificaciones_tecnicas = request.POST.get('especificaciones_tecnicas', '').strip()
         existencia_inicial = request.POST.get('existencia_inicial', 0)
-        imagen = request.FILES.get('imagen') 
-        
+        imagen = request.FILES.get('imagen')
+
         if not nombre or not costo_comercial or not existencia_inicial:
             messages.error(request, 'Por favor completa todos los campos requeridos.')
         else:
@@ -78,13 +78,13 @@ def altaproducto(request):
                     descuento_minimo_unidades=int(descuento_minimo_unidades or 0),
                     especificaciones_tecnicas=especificaciones_tecnicas,
                     existencia_inicial=int(existencia_inicial),
-                    imagen=imagen 
+                    imagen=imagen
                 )
                 messages.success(request, f'Producto "{nombre}" creado exitosamente.')
                 return redirect('control')
             except Exception as e:
                 messages.error(request, f'Error al crear el producto: {str(e)}')
-    
+
     return render(request, 'game/altaproducto.html', {
         'clasificaciones': Producto.CLASIFICACION_CHOICES,
     })
@@ -135,7 +135,6 @@ def editar_producto(request, id):
                     producto.imagen = imagen
                 producto.save()
 
-                # RF4: notificar si el stock pasó de 0 a > 0
                 if stock_anterior == 0 and nuevo_stock > 0:
                     _notificar_alertas_stock(producto)
 
@@ -149,6 +148,7 @@ def editar_producto(request, id):
         'clasificaciones': Producto.CLASIFICACION_CHOICES,
     })
 
+
 @admin_required
 def eliminar_producto(request, id):
     if request.method == 'POST':
@@ -157,6 +157,7 @@ def eliminar_producto(request, id):
         producto.delete()
         messages.success(request, f'Producto "{nombre}" eliminado correctamente.')
     return redirect('control')
+
 
 def catalogo(request):
     clasificacion_filter = request.GET.get('clasificacion', None)
@@ -178,41 +179,21 @@ def catalogo(request):
     })
 
 
-def detallesproducto(request, producto_id): 
-    producto = get_object_or_404(Producto, pk=producto_id) 
+def detallesproducto(request, producto_id):
+    producto = get_object_or_404(Producto, pk=producto_id)
     return render(request, 'game/detallesproducto.html', {'producto': producto})
 
 
 @admin_required
 def control(request):
-    # Traemos todos los productos registrados en la BD
     productos = Producto.objects.all()
-    
-    # Se los enviamos al HTML
-    return render(request, 'game/control.html', {
-        'productos': productos
-    })
+    return render(request, 'game/control.html', {'productos': productos})
 
 
 @admin_required
 def lista_usuarios(request):
     usuarios = Usuario.objects.all().order_by('-id')
     return render(request, 'game/usuarios.html', {'usuarios': usuarios})
-
-
-@login_required_custom
-def perfil(request):
-    usuario_id = request.session.get('usuario_id')
-    usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
-    
-    direcciones = Direccion.objects.filter(usuario=usuario_obj)
-    ordenes = Orden.objects.filter(usuario=usuario_obj).order_by('-created')
-
-    return render(request, 'game/perfil.html', {
-        'usuario': usuario_obj,
-        'direcciones': direcciones,
-        'ordenes': ordenes
-    })
 
 
 @login_required_custom
@@ -266,10 +247,11 @@ def opiniones(request):
 
         if mensaje_form:
             Opinión.objects.create(
-                user=usuario_obj.username,  
-                message=mensaje_form
+                user=usuario_obj.username,
+                message=mensaje_form,
+                status='PENDIENTE'  # ← requiere aprobación del admin
             )
-            messages.success(request, '¡Tu opinión ha sido enviada!')
+            messages.success(request, '¡Tu opinión ha sido enviada y está pendiente de aprobación!')
         else:
             messages.error(request, 'El comentario no puede estar vacío.')
 
@@ -499,104 +481,6 @@ def procesar_pago(request):
         return redirect('carrito')
 
     return redirect('carrito')
-    if request.method == 'POST':
-        usuario_id = request.session.get('usuario_id')
-        usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
-        carrito_db = _obtener_o_crear_carrito_db(request)
-
-        items_a_comprar = []
-        subtotal = 0
-
-        if carrito_db:
-            elementos = ElementoCarrito.objects.filter(carrito=carrito_db).select_related('producto')
-            for el in elementos:
-                costo = float(el.producto.precio_con_descuento())
-                items_a_comprar.append({
-                    'producto_obj': el.producto,
-                    'cantidad': el.cantidad,
-                    'precio': costo
-                })
-                subtotal += costo * el.cantidad
-        else:
-            carrito_session = request.session.get('carrito', {})
-            for prod_id, item in carrito_session.items():
-                p_obj = Producto.objects.filter(id=prod_id).first()
-                if p_obj:
-                    costo = float(item['precio'])
-                    cant = int(item['cantidad'])
-                    items_a_comprar.append({
-                        'producto_obj': p_obj,
-                        'cantidad': cant,
-                        'precio': costo
-                    })
-                    subtotal += costo * cant
-
-        if not items_a_comprar:
-            messages.error(request, 'Tu carrito está vacío.')
-            return redirect('carrito')
-
-        metodo_pago = request.POST.get('metodo_pago', 'TARJETA')
-        if metodo_pago == 'TARJETA':
-            num_tarjeta = request.POST.get('numero_tarjeta', '').replace(' ', '')
-            cvv = request.POST.get('cvv', '')
-            if len(num_tarjeta) != 16 or not num_tarjeta.isdigit():
-                messages.error(request, 'Error en el pago: Ingresa un número de tarjeta válido de 16 dígitos.')
-                return redirect('carrito')
-            if len(cvv) < 3 or not cvv.isdigit():
-                messages.error(request, 'Error en el pago: El código CVV es incorrecto.')
-                return redirect('carrito')
-
-        direccion_id = request.POST.get('direccion_id')
-        if direccion_id:
-            dir_obj = Direccion.objects.filter(id=direccion_id, usuario=usuario_obj).first()
-            if dir_obj:
-                direccion_postal = f"{dir_obj.calle} #{dir_obj.numero_exterior}, Col. {dir_obj.colonia}"
-                estado_ciudad = dir_obj.ciudad
-                codigo_postal = dir_obj.codigo_postal
-            else:
-                direccion_postal = "Entrega Digital / Descarga"
-                estado_ciudad = "Digital"
-                codigo_postal = "00000"
-        else:
-            direccion_postal = "Entrega Digital / Descarga"
-            estado_ciudad = "Digital"
-            codigo_postal = "00000"
-
-        nueva_orden = Orden.objects.create(
-            usuario=usuario_obj,
-            nombre_completo=usuario_obj.username,
-            direccion_postal=direccion_postal,
-            estado_ciudad=estado_ciudad,
-            codigo_postal=codigo_postal,
-            metodo_pago=metodo_pago,
-            total_neto=subtotal
-        )
-
-        for item in items_a_comprar:
-            prod = item['producto_obj']
-            cant = item['cantidad']
-            if prod.existencia_inicial >= cant:
-                prod.existencia_inicial -= cant
-            else:
-                prod.existencia_inicial = 0
-            prod.save()
-
-            OrdenItem.objects.create(
-                orden=nueva_orden,
-                producto=prod,
-                cantidad=cant,
-                precio_unitario=item['precio']
-            )
-
-        if carrito_db:
-            ElementoCarrito.objects.filter(carrito=carrito_db).delete()
-        request.session['carrito'] = {}
-        request.session.modified = True
-
-        messages.success(request, f'¡Pago aprobado con éxito! Tu Orden #{nueva_orden.id} fue registrada.')
-        return redirect('carrito')
-
-    return redirect('carrito')
 
 
 def registro(request):
@@ -680,11 +564,25 @@ def logout_view(request):
     messages.info(request, 'Has cerrado sesión exitosamente.')
     return redirect('login')
 
+
 # --- ADMINISTRACIÓN DE OPINIONES ---
 @admin_required
 def admin_opiniones(request):
-    opiniones_lista = Opinión.objects.all().order_by('-id')
-    return render(request, 'game/admin_opiniones.html', {'opiniones': opiniones_lista})
+    estado_actual = request.GET.get('estado', 'TODOS')
+
+    if estado_actual in ['PENDIENTE', 'APROBADO', 'RECHAZADO']:
+        opiniones_lista = Opinión.objects.filter(status=estado_actual).order_by('-id')
+    else:
+        estado_actual = 'TODOS'
+        opiniones_lista = Opinión.objects.all().order_by('-id')
+
+    return render(request, 'game/admin_opiniones.html', {
+        'opiniones': opiniones_lista,
+        'estado_actual': estado_actual,
+        'pendientes': Opinión.objects.filter(status='PENDIENTE').count(),
+        'aprobadas': Opinión.objects.filter(status='APROBADO').count(),
+        'rechazadas': Opinión.objects.filter(status='RECHAZADO').count(),
+    })
 
 
 @admin_required
@@ -696,12 +594,34 @@ def eliminar_opinion(request, id):
     return redirect('admin_opiniones')
 
 
-# --- PERFIL DE USUARIO (ACTUALIZADO) ---
+@admin_required
+def aprobar_opinion(request, id):
+    if request.method == 'POST':
+        opinion = get_object_or_404(Opinión, pk=id)
+        opinion.status = 'APROBADO'
+        opinion.is_hidden = False
+        opinion.save()
+        messages.success(request, f'La opinión de @{opinion.user} fue aprobada.')
+    return redirect('admin_opiniones')
+
+
+@admin_required
+def rechazar_opinion(request, id):
+    if request.method == 'POST':
+        opinion = get_object_or_404(Opinión, pk=id)
+        opinion.status = 'RECHAZADO'
+        opinion.is_hidden = True
+        opinion.save()
+        messages.success(request, f'La opinión de @{opinion.user} fue rechazada.')
+    return redirect('admin_opiniones')
+
+
+# --- PERFIL DE USUARIO ---
 @login_required_custom
 def perfil(request):
     usuario_id = request.session.get('usuario_id')
     usuario_obj = get_object_or_404(Usuario, pk=usuario_id)
-    
+
     direcciones = Direccion.objects.filter(usuario=usuario_obj)
     ordenes = Orden.objects.filter(usuario=usuario_obj).order_by('-created')
     mis_opiniones = Opinión.objects.filter(user=usuario_obj.username).order_by('-id')
@@ -722,7 +642,6 @@ def admin_estadisticas(request):
     total_ingresos = Orden.objects.aggregate(Sum('total_neto'))['total_neto__sum'] or 0
     total_pedidos = Orden.objects.count()
 
-    # Cálculo de unidades vendidas e ingresos por cada producto
     productos_stats = Producto.objects.annotate(
         unidades_vendidas=Sum('ordenitem__cantidad'),
         ingresos_generados=Sum(F('ordenitem__cantidad') * F('ordenitem__precio_unitario'))
@@ -743,8 +662,10 @@ def admin_pedidos(request):
     pedidos = Orden.objects.all().order_by('-created')
     return render(request, 'game/admin_pedidos.html', {'pedidos': pedidos})
 
+
 def sobre_nosotros(request):
     return render(request, 'game/sobre_nosotros.html')
+
 
 def contacto(request):
     if request.method == 'POST':
@@ -762,17 +683,10 @@ def contacto(request):
 
     return render(request, 'game/contacto.html')
 
+
 def _notificar_alertas_stock(producto):
-    """
-    Función interna. Se llama desde editar_producto cuando el stock
-    pasa de 0 a > 0. Envía correo a cada interesado y marca la alerta
-    como notificada para no volver a enviar.
-    """
-    alertas_pendientes = AlertaStock.objects.filter(
-        producto=producto,
-        notificado=False
-    )
- 
+    alertas_pendientes = AlertaStock.objects.filter(producto=producto, notificado=False)
+
     for alerta in alertas_pendientes:
         try:
             send_mail(
@@ -793,23 +707,18 @@ def _notificar_alertas_stock(producto):
             alerta.save()
         except Exception:
             pass
- 
- 
+
+
 def registrar_alerta_stock(request, producto_id):
-    """
-    Vista POST. El cliente escribe su correo en el formulario que aparece
-    cuando un producto tiene Stock=0. Se guarda en AlertaStock.
-    """
     producto = get_object_or_404(Producto, pk=producto_id)
- 
+
     if request.method == 'POST':
         email = request.POST.get('email', '').strip()
- 
+
         if not email:
             messages.error(request, 'Escribe un correo válido.')
             return redirect('catalogo')
- 
-        # unique_together evita duplicados; IntegrityError si ya existe
+
         try:
             AlertaStock.objects.create(producto=producto, email=email)
             messages.success(
@@ -821,6 +730,23 @@ def registrar_alerta_stock(request, producto_id):
                 request,
                 f'Tu correo ya está registrado para "{producto.nombre}".'
             )
- 
+
     return redirect('catalogo')
- 
+
+# --- ADMINISTRACIÓN DE DUDAS ---
+@admin_required
+def admin_dudas(request):
+    dudas = Duda.objects.all().order_by('-created')
+    return render(request, 'game/admin_dudas.html', {
+        'dudas': dudas,
+        'total': dudas.count()
+    })
+
+
+@admin_required
+def eliminar_duda(request, id):
+    if request.method == 'POST':
+        duda = get_object_or_404(Duda, pk=id)
+        duda.delete()
+        messages.success(request, 'La duda fue eliminada correctamente.')
+    return redirect('admin_dudas')

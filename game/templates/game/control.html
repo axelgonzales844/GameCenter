@@ -11,7 +11,16 @@
             + AGREGAR PRODUCTO
         </a>
     </div>
-    
+
+    <!-- Accesos Rápidos Admin -->
+    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;">
+        <a href="{% url 'admin_opiniones' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">💬 Opiniones</a>
+        <a href="{% url 'admin_dudas' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">📩 Dudas</a>
+        <a href="{% url 'admin_pedidos' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">📦 Pedidos</a>
+        <a href="{% url 'admin_estadisticas' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">📊 Estadísticas</a>
+        <a href="{% url 'lista_usuarios' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">👥 Usuarios</a>
+    </div>
+
     <div class="row-list-container">
         {% for prod in productos %}
             <!-- Marca el borde en rojo si hay 3 o menos piezas -->
