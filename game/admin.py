@@ -18,10 +18,12 @@ class ProductoModelo(admin.ModelAdmin):
 
 
 class OpiniónAdmin(admin.ModelAdmin):
-    list_display = ('user', 'status', 'created', 'is_hidden')
+    list_display = ('user', 'message_snippet', 'status', 'is_hidden', 'created')
+    list_editable = ('status', 'is_hidden')  # Permite cambiar el estado directo en la lista sin entrar a editar
     list_filter = ('status', 'created', 'is_hidden')
     search_fields = ('user', 'message')
     readonly_fields = ('created', 'updated')
+    actions = ['aprobar_opiniones', 'rechazar_opiniones']  # Acciones masivas
 
     fieldsets = (
         ('Información', {
@@ -35,6 +37,20 @@ class OpiniónAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
+
+    def message_snippet(self, obj):
+        return obj.message[:50] + "..." if len(obj.message) > 50 else obj.message
+    message_snippet.short_description = "Mensaje"
+
+    @admin.action(description="Aprobar opiniones seleccionadas")
+    def aprobar_opiniones(self, request, queryset):
+        filas_actualizadas = queryset.update(status='APROBADO')
+        self.message_user(request, f"{filas_actualizadas} opinión(es) aprobada(s) correctamente.")
+
+    @admin.action(description="Rechazar opiniones seleccionadas")
+    def rechazar_opiniones(self, request, queryset):
+        filas_actualizadas = queryset.update(status='RECHAZADO')
+        self.message_user(request, f"{filas_actualizadas} opinión(es) rechazada(s) correctamente.")
 
     class Media:
         css = {
