@@ -735,6 +735,7 @@ def registrar_alerta_stock(request, producto_id):
 
 # --- ADMINISTRACIÓN DE DUDAS ---
 @admin_required
+@admin_required
 def admin_dudas(request):
     dudas = Duda.objects.all().order_by('-created')
     return render(request, 'game/admin_dudas.html', {

@@ -12,26 +12,17 @@
         </a>
     </div>
 
-    <!-- Accesos Rápidos Admin -->
-    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 24px;">
-        <a href="{% url 'admin_opiniones' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">💬 Opiniones</a>
-        <a href="{% url 'admin_dudas' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">📩 Dudas</a>
-        <a href="{% url 'admin_pedidos' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">📦 Pedidos</a>
-        <a href="{% url 'admin_estadisticas' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">📊 Estadísticas</a>
-        <a href="{% url 'lista_usuarios' %}" class="action-button btn-action-secondary btn-inline" style="text-decoration: none;">👥 Usuarios</a>
-    </div>
-
     <div class="row-list-container">
         {% for prod in productos %}
             <!-- Marca el borde en rojo si hay 3 o menos piezas -->
             <div class="row-item-card" {% if prod.existencia_inicial <= 3 %}style="border-left: 4px solid var(--coral-alerta);"{% endif %}>
-                
+
                 <!-- Nombre del Producto -->
                 <div class="row-cell-primary">{{ prod.nombre }}</div>
-                
+
                 <!-- Clasificación -->
                 <div class="row-cell-info">{{ prod.clasificacion }}</div>
-                
+
                 <!-- Costo Comercial y descuento -->
                 <div class="row-cell-info">
                     {% if prod.descuento %}
@@ -41,7 +32,7 @@
                         <strong>${{ prod.costo_comercial|floatformat:2 }} MXN</strong>
                     {% endif %}
                 </div>
-                
+
                 <!-- Existencia Inicial con color por nivel de stock -->
                 <div class="row-cell-status">
                     {% if prod.existencia_inicial <= 3 %}
@@ -61,7 +52,7 @@
 
                 <!-- Botones de Acción -->
                 <div class="row-cell-actions">
-                    <a href="{% url 'editar_producto' prod.id %}" class="action-button btn-action-primary btn-inline" style="text-decoration: none; text-align: center;">Editar</a>                    
+                    <a href="{% url 'editar_producto' prod.id %}" class="action-button btn-action-primary btn-inline" style="text-decoration: none; text-align: center;">Editar</a>
                     <form action="{% url 'eliminar_producto' prod.id %}" method="POST" style="display: inline;" onsubmit="return confirm('¿Seguro que deseas eliminar este producto?');">
                         {% csrf_token %}
                         <button type="submit" class="action-button btn-action-delete btn-inline" style="background: red; color: white;">Eliminar</button>

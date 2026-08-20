@@ -6,7 +6,7 @@
 {% block contenido %}
     <div class="dashboard-container">
         <div class="title-section">Editar Componente: {{ producto.nombre }}</div>
-        
+
         <form method="POST" class="form-grid" enctype="multipart/form-data">
             {% csrf_token %}
             <div>
@@ -52,7 +52,7 @@
                 </div>
                 <div class="group-field">
                     <label class="field-label">Existencia Inicial Almacén</label>
-                    <input type="number" name="existencia_inicial" class="field-control" value="{{ producto.existencia_inicial }}" required>
+                    <input type="number" name="existencia_inicial" class="field-control" min="0" value="{{ producto.existencia_inicial }}" required>
                 </div>
                 <div class="group-field">
                     <label class="field-label">Imagen del Componente</label>
@@ -65,7 +65,7 @@
                     <input type="file" name="imagen" class="field-control" accept="image/*" style="padding: 8px 15px;">
                 </div>
             </div>
-            
+
             <div class="form-buttons">
                 <a href="{% url 'control' %}" class="action-button btn-action-secondary btn-reset" style="text-decoration: none; text-align: center; display: inline-block;">Cancelar</a>
                 <button type="submit" class="action-button btn-action-primary btn-submit">Guardar Cambios</button>

@@ -15,16 +15,14 @@
                 <div style="width: 50px; height: 50px; background-color: #16161a; border-radius: 6px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #2a2a2f;">
                     {% if item.imagen %}
                         <img src="{{ item.imagen }}" style="width: 100%; height: 100%; object-fit: cover;">
-                    {% else %}
-                        🎮
                     {% endif %}
                 </div>
-                
+
                 <div class="row-cell-primary" style="flex: 1.5;">
                     <div style="font-size: 15px; font-weight: bold;">{{ item.nombre }}</div>
                     <span style="font-size: 12px; color: var(--texto-secundario);">${{ item.precio }} c/u</span>
                 </div>
-                
+
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <a href="{% url 'cambiar_cantidad_carrito' item.producto_id 'restar' %}" class="action-button btn-action-secondary btn-inline" style="padding: 2px 8px; text-decoration: none;">-</a>
                     <span style="font-weight: 700; font-size: 14px; width: 20px; text-align: center;">{{ item.cantidad }}</span>
@@ -32,7 +30,7 @@
                 </div>
 
                 <div style="font-weight: 800; color: #10b981; min-width: 100px; text-align: right;">${{ item.subtotal }}</div>
-                
+
                 <a href="{% url 'cambiar_cantidad_carrito' item.producto_id 'eliminar' %}" class="action-button btn-action-delete btn-inline" style="padding: 6px; text-decoration: none; background: #ef4444; color: white;">✕</a>
             </div>
             {% empty %}
@@ -44,7 +42,7 @@
 
         {% if carrito_items %}
         <div style="margin-top: 30px; background: #16161a; border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px;">
-            
+
             <!-- Dirección de Envío -->
             <h4 style="font-size: 16px; font-weight: bold; margin-top: 0; color: #fff;">Dirección de Envío</h4>
 
@@ -85,7 +83,7 @@
 
             <!-- Método de Pago -->
             <h4 style="font-size: 16px; font-weight: bold; color: #fff; margin-top: 15px; margin-bottom: 10px;">Procesar Pago</h4>
-            
+
             <div style="display: flex; gap: 20px; margin-bottom: 15px;">
                 <label style="color: #fff; cursor: pointer; font-size: 14px;">
                     <input type="radio" name="metodo_pago" value="TARJETA" checked onclick="document.getElementById('tarjeta-box').style.display='grid'">
