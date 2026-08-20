@@ -1,32 +1,148 @@
 {% extends "game/encabezado.html" %}
-{% block title %}Gestión de Opiniones - Game Center{% endblock %}
+{% load static %}
+
+{% block title %}Administración de Opiniones - Game Center{% endblock %}
 
 {% block contenido %}
-<div class="dashboard-container">
-    <div class="dashboard-header-flex">
-        <div class="dashboard-header-title">Gestión de Reseñas y Opiniones</div>
+<div class="container" style="max-width: 1100px; margin: 0 auto; padding: 20px;">
+
+    <!-- ENCABEZADO Y FILTROS -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; flex-wrap: wrap; gap: 15px;">
+        <div>
+            <h2 style="margin: 0; color: #fff; font-size: 24px;">Panel de Moderación de Opiniones</h2>
+            <p style="margin: 5px 0 0; color: var(--texto-secundario); font-size: 14px;">Revisa, aprueba, rechaza o elimina comentarios de la plataforma.</p>
+        </div>
+
+        <!-- BARRA DE FILTROS POR ESTADO -->
+        <div style="display: flex; gap: 8px; background-color: var(--crema-bloque); padding: 6px; border-radius: 8px; border: 1px solid #2a2a2f;">
+            <a href="{% url 'admin_opiniones' %}?estado=TODOS" 
+               class="btn-filter {% if estado_actual == 'TODOS' %}active{% endif %}">
+               Todos
+            </a>
+            <a href="{% url 'admin_opiniones' %}?estado=PENDIENTE" 
+               class="btn-filter {% if estado_actual == 'PENDIENTE' %}active{% endif %}">
+               Pendientes ({{ pendientes }})
+            </a>
+            <a href="{% url 'admin_opiniones' %}?estado=APROBADO" 
+               class="btn-filter {% if estado_actual == 'APROBADO' %}active{% endif %}">
+               Aprobadas ({{ aprobadas }})
+            </a>
+            <a href="{% url 'admin_opiniones' %}?estado=RECHAZADO" 
+               class="btn-filter {% if estado_actual == 'RECHAZADO' %}active{% endif %}">
+               Rechazadas ({{ rechazadas }})
+            </a>
+        </div>
     </div>
 
-    <div class="row-list-container" style="margin-top: 20px;">
-        {% for op in opiniones %}
-            <div class="row-item-card" style="display: flex; justify-content: space-between; align-items: center;">
-                <div>
-                    <strong>@{{ op.user }}</strong>
-                    <p style="margin: 5px 0; color: #ccc;">"{{ op.message }}"</p>
-                    <small style="color: #777;">Estado: {{ op.status }}</small>
-                </div>
-                <div>
-                    <form action="{% url 'eliminar_opinion' op.id %}" method="POST" onsubmit="return confirm('¿Eliminar esta opinión permanentemente?');">
-                        {% csrf_token %}
-                        <button type="submit" class="action-button btn-action-delete btn-inline" style="background: red; color: white;">Eliminar</button>
-                    </form>
-                </div>
-            </div>
-        {% empty %}
-            <div class="row-item-card" style="justify-content: center; color: #aaa;">
-                No hay opiniones registradas.
+    <!-- MENSAJES DE ALERTA -->
+    {% if messages %}
+        {% for message in messages %}
+            <div style="padding: 12px 20px; border-radius: 6px; margin-bottom: 20px; font-weight: 600; 
+                        {% if message.tags == 'success' %}background: #10b98122; color: #10b981; border: 1px solid #10b98155;{% else %}background: #ef444422; color: #ef4444; border: 1px solid #ef444455;{% endif %}">
+                {{ message }}
             </div>
         {% endfor %}
-    </div>
+    {% endif %}
+
+    <!-- LISTADO DE OPINIONES -->
+    {% if opiniones %}
+        <div style="display: flex; flex-direction: column; gap: 15px;">
+            {% for opinion in opiniones %}
+                <div style="background-color: var(--crema-bloque); border: 1px solid #2a2a2f; border-radius: 8px; padding: 20px; display: flex; flex-direction: column; gap: 12px;">
+                    
+                    <!-- ENCABEZADO TARJETA -->
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <strong style="color: var(--teal-medio, #0d9488); font-size: 16px;">@{{ opinion.user }}</strong>
+                            <span style="font-size: 12px; color: var(--texto-secundario);">{{ opinion.created|date:"d/m/Y H:i" }}</span>
+                        </div>
+
+                        <!-- BADGE ESTADO -->
+                        <div>
+                            {% if opinion.status == 'PENDIENTE' %}
+                                <span style="background: #f59e0b22; color: #f59e0b; border: 1px solid #f59e0b55; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Pendiente</span>
+                            {% elif opinion.status == 'APROBADO' %}
+                                <span style="background: #10b98122; color: #10b981; border: 1px solid #10b98155; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Aprobada</span>
+                            {% else %}
+                                <span style="background: #ef444422; color: #ef4444; border: 1px solid #ef444455; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: bold;">Rechazada</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- MENSAJE -->
+                    <p style="margin: 0; color: #fff; font-size: 15px; line-height: 1.5;">
+                        {{ opinion.message }}
+                    </p>
+
+                    <!-- RESPUESTA EXISTENTE -->
+                    {% if opinion.response %}
+                        <div style="padding: 10px 14px; border-left: 3px solid var(--teal-medio, #0d9488); background: rgba(255,255,255,.03); border-radius: 0 4px 4px 0;">
+                            <strong style="color: var(--teal-medio, #0d9488); font-size: 13px;">Respuesta guardada:</strong>
+                            <p style="margin: 4px 0 0; color: #ccc; font-size: 14px;">{{ opinion.response }}</p>
+                        </div>
+                    {% endif %}
+
+                    <!-- BOTONES DE ACCIÓN POST -->
+                    <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 5px; border-top: 1px solid #2a2a2f; padding-top: 12px;">
+                        
+                        {% if opinion.status != 'APROBADO' %}
+                            <form action="{% url 'aprobar_opinion' opinion.id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: #10b981; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-weight: 600; cursor: pointer;">
+                                    Aprobar
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        {% if opinion.status != 'RECHAZADO' %}
+                            <form action="{% url 'rechazar_opinion' opinion.id %}" method="POST" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" style="background: #f59e0b; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-weight: 600; cursor: pointer;">
+                                    Rechazar
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <form action="{% url 'eliminar_opinion' opinion.id %}" method="POST" style="display:inline;" onsubmit="return confirm('¿Seguro que deseas eliminar este comentario permanentemente?');">
+                            {% csrf_token %}
+                            <button type="submit" style="background: #ef4444; color: #fff; border: none; padding: 6px 14px; border-radius: 4px; font-weight: 600; cursor: pointer;">
+                                Eliminar
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="empty-state" style="text-align: center; padding: 50px 20px; background: var(--crema-bloque); border-radius: 8px; border: 1px solid #2a2a2f;">
+            <div class="empty-icon" style="font-size: 36px; margin-bottom: 10px;">🛡️</div>
+            <h4 style="margin: 0; color: #fff;">No hay opiniones en esta sección</h4>
+            <p style="color: var(--texto-secundario); margin-top: 5px;">No se encontraron comentarios bajo el filtro seleccionado.</p>
+        </div>
+    {% endif %}
+
 </div>
+
+<style>
+    .btn-filter {
+        color: var(--texto-secundario);
+        text-decoration: none;
+        padding: 6px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    .btn-filter:hover {
+        color: #fff;
+        background-color: rgba(255,255,255,0.05);
+    }
+    .btn-filter.active {
+        background-color: var(--teal-medio, #0d9488);
+        color: #fff;
+    }
+</style>
+
+{% include "game/footer.html" %}
 {% endblock %}
