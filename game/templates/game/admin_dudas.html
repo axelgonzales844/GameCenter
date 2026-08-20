@@ -5,7 +5,7 @@
 <div class="dashboard-container">
     <div class="dashboard-header-flex">
         <div class="dashboard-header-title">Dudas y Mensajes de Contacto</div>
-        <a href="{% url 'control' %}" class="action-button btn-action-secondary btn-inline">← Volver al Panel</a>
+        
     </div>
 
     {% if messages %}
@@ -16,15 +16,7 @@
     </div>
     {% endif %}
 
-    <!-- Contador -->
-    <div style="margin: 20px 0;">
-        <div style="background: #1e1e2e; border: 1px solid #6366f1; border-radius: 8px; padding: 12px 20px; display: inline-block; text-align: center;">
-            <div style="font-size: 1.5rem; font-weight: bold; color: #6366f1;">{{ total }}</div>
-            <div style="color: #aaa; font-size: 0.85rem;">Mensajes recibidos</div>
-        </div>
-    </div>
-
-    <div class="row-list-container">
+    <div class="row-list-container" style="margin-top: 20px;">
         {% for duda in dudas %}
             <div class="row-item-card" style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
                 <div style="flex: 1;">
@@ -38,7 +30,7 @@
                 <div style="flex-shrink: 0;">
                     <form action="{% url 'eliminar_duda' duda.id %}" method="POST" onsubmit="return confirm('¿Eliminar este mensaje permanentemente?');">
                         {% csrf_token %}
-                        <button type="submit" class="action-button btn-action-delete btn-inline">🗑 Eliminar</button>
+                        <button type="submit" class="action-button btn-action-delete btn-inline" style="background: red; color: white;">🗑 Eliminar</button>
                     </form>
                 </div>
             </div>
