@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from functools import wraps
 from django.shortcuts import get_object_or_404, render, redirect
 from django.contrib import messages
@@ -7,7 +6,8 @@ from .models import Producto, Opinión, Usuario, Orden, OrdenItem, Direccion, Ca
 from django.contrib.auth.hashers import check_password, make_password
 from django.db.models import Sum, Count, F
 from django.utils import timezone
-from django.core.mail import send_mail
+from sendgrid import SendGridAPIClient
+from sendgrid.helpers.mail import Mail
 from django.conf import settings
 
 
@@ -249,7 +249,7 @@ def opiniones(request):
             Opinión.objects.create(
                 user=usuario_obj.username,
                 message=mensaje_form,
-                status='PENDIENTE'  # ← requiere aprobación del admin
+                status='PENDIENTE'
             )
             messages.success(request, '¡Tu opinión ha sido enviada y está pendiente de aprobación!')
         else:
@@ -688,25 +688,27 @@ def _notificar_alertas_stock(producto):
     alertas_pendientes = AlertaStock.objects.filter(producto=producto, notificado=False)
 
     for alerta in alertas_pendientes:
-        try:
-            send_mail(
-                subject=f'¡{producto.nombre} ya está disponible en Game Center!',
-                message=(
-                    f'Hola,\n\n'
-                    f'El producto "{producto.nombre}" que tenías en lista de espera '
-                    f'ya cuenta con existencias disponibles.\n\n'
-                    f'Visita el catálogo para comprarlo antes de que se agote:\n'
-                    f'http://127.0.0.1:8000/catalogo/\n\n'
-                    f'— Equipo Game Center'
-                ),
-                from_email=settings.DEFAULT_FROM_EMAIL,
-                recipient_list=[alerta.email],
-                fail_silently=True,
+        mensaje = Mail(
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            to_emails=alerta.email,
+            subject=f'¡{producto.nombre} ya está disponible en Game Center!',
+            plain_text_content=(
+                f'Hola,\n\n'
+                f'El producto "{producto.nombre}" (ID: {producto.id}) que tenías en lista de espera '
+                f'ya cuenta con existencias disponibles.\n\n'
+                f'Visita el catálogo para comprarlo antes de que se agote:\n'
+                f'http://127.0.0.1:8000/catalogo/\n\n'
+                f'— Equipo Game Center'
             )
-            alerta.notificado = True
-            alerta.save()
-        except Exception:
-            pass
+        )
+        try:
+            sg = SendGridAPIClient(settings.EMAIL_HOST_PASSWORD)
+            respuesta = sg.send(mensaje)
+            if respuesta.status_code in [200, 201, 202]:
+                alerta.notificado = True
+                alerta.save()
+        except Exception as e:
+            print(f"Error al enviar correo a {alerta.email}: {e}")
 
 
 def registrar_alerta_stock(request, producto_id):
@@ -733,8 +735,8 @@ def registrar_alerta_stock(request, producto_id):
 
     return redirect('catalogo')
 
+
 # --- ADMINISTRACIÓN DE DUDAS ---
-@admin_required
 @admin_required
 def admin_dudas(request):
     dudas = Duda.objects.all().order_by('-created')
