@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-hdrk-2&^0kgcq)9=z(!x%@8t%9(ij+fk^@4f399ohenn--xuhh'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['gamecenter35.pythonanywhere.com','localhost','127.0.0.1']
 
 
 # Application definition
@@ -38,7 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'game',  
+    'game',
 ]
 
 MIDDLEWARE = [
@@ -120,18 +120,15 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # https://docs.djangoproject.com/en/6.0/howto/static-files/
 
 STATIC_URL = 'static/'
-
+STATIC_ROOT = os.path.join(BASE_DIR, "static")
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR,'media')
 
-
-# =============================================================================
-# RF4: Configuración de correo para alertas de stock
-# =============================================================================
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
+# RF4: Configuración SendGrid
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+EMAIL_HOST = 'smtp.sendgrid.net'
+EMAIL_PORT = 2525
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'antonycoro77@gmail.com'      # <-- cambia por el correo del equipo
-EMAIL_HOST_PASSWORD = 'xrvftlvzboahkddq' # <-- contraseña de aplicación de Gmail
-DEFAULT_FROM_EMAIL = 'antonycoro77@gmail.com'   # <-- mismo correo
+EMAIL_HOST_USER = 'apikey'
+EMAIL_HOST_PASSWORD = 'tu-api-key-aqui'
+DEFAULT_FROM_EMAIL = 'antonycoro77@gmail.com'
